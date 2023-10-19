@@ -8,6 +8,25 @@
     "logAnalyticsRetentionInDays": {
       "value": 30
     },
+    "openAiEnabled": {
+      "value": true
+    },
+    "openAiDeployments": {
+      "value": [
+        {
+          "name": "text-embedding-ada-002",
+          "version": "2",
+          "raiPolicyName": "",
+          "capacity": 30
+        },
+        {
+          "name": "gpt-35-turbo",
+          "version": "0613",
+          "raiPolicyName": "",
+          "capacity": 30
+        }
+      ]
+    },
     "tags": {
       "value": {
         "env": "dev"
