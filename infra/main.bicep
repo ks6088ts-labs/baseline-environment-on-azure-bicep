@@ -66,6 +66,25 @@ param openAiPublicNetworkAccess string = 'Enabled'
 @description('Specifies the OpenAI deployments to create.')
 param openAiDeployments array = []
 
+@description('Specifies whether creating the Azure Container Registry resource or not.')
+param containerRegistryEnabled bool = false
+
+@description('Name of your Azure Container Registry')
+@minLength(5)
+@maxLength(50)
+param containerRegistryName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Acr' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Acr' : '${toLower(prefix)}-acr'
+
+@description('Enable admin user that have push / pull permission to the registry.')
+param containerRegistryAdminUserEnabled bool = false
+
+@description('Tier of your Azure Container Registry.')
+@allowed([
+  'Basic'
+  'Standard'
+  'Premium'
+])
+param containerRegistrySku string = 'Standard'
+
 module workspace './modules/logAnalytics.bicep' = {
   name: 'workspace'
   params: {
@@ -86,6 +105,18 @@ module openAi './modules/openAi.bicep' = if (openAiEnabled) {
     customSubDomainName: empty(openAiCustomSubDomainName) ? toLower(openAiName) : openAiCustomSubDomainName
     publicNetworkAccess: openAiPublicNetworkAccess
     deployments: openAiDeployments
+    workspaceId: workspace.outputs.id
+    location: location
+    tags: tags
+  }
+}
+
+module containerRegistry './modules/containerRegistry.bicep' = if (containerRegistryEnabled) {
+  name: 'containerRegistry'
+  params: {
+    name: containerRegistryName
+    sku: containerRegistrySku
+    adminUserEnabled: containerRegistryAdminUserEnabled
     workspaceId: workspace.outputs.id
     location: location
     tags: tags

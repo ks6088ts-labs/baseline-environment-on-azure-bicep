@@ -27,6 +27,9 @@
         }
       ]
     },
+    "containerRegistryEnabled": {
+      "value": true
+    },
     "tags": {
       "value": {
         "env": "dev"
