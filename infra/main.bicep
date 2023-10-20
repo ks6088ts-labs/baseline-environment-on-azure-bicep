@@ -85,6 +85,26 @@ param containerRegistryAdminUserEnabled bool = false
 ])
 param containerRegistrySku string = 'Standard'
 
+@description('Specifies whether creating the Azure IoT Hub resource or not.')
+param iotHubEnabled bool = false
+
+@description('Name of your Azure IoT Hub')
+@minLength(5)
+@maxLength(50)
+param iotHubName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}IotHub' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}IotHub' : '${toLower(prefix)}-iothub'
+
+@description('The SKU to use for the IoT Hub.')
+@allowed([
+  'B1'
+  'B2'
+  'B3'
+  'F1'
+  'S1'
+  'S2'
+  'S3'
+])
+param iotHubSku string = 'S1'
+
 module workspace './modules/logAnalytics.bicep' = {
   name: 'workspace'
   params: {
@@ -118,6 +138,16 @@ module containerRegistry './modules/containerRegistry.bicep' = if (containerRegi
     sku: containerRegistrySku
     adminUserEnabled: containerRegistryAdminUserEnabled
     workspaceId: workspace.outputs.id
+    location: location
+    tags: tags
+  }
+}
+
+module iotHub './modules/iotHub.bicep' = if (iotHubEnabled) {
+  name: 'iotHub'
+  params: {
+    name: iotHubName
+    sku: iotHubSku
     location: location
     tags: tags
   }
