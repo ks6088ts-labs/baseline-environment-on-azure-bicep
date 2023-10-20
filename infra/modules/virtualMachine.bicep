@@ -31,6 +31,11 @@ param vmAdminUsername string
 @secure()
 param vmAdminPasswordOrKey string
 
+@description('Specifies the identity of the virtual machine.')
+param identity object = {
+  type: 'SystemAssigned'
+}
+
 @description('Specifies the name of the user-defined managed identity used by the Azure Monitor Agent.')
 param managedIdentityName string
 
@@ -116,6 +121,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-07-01' = {
   name: vmName
   location: location
   tags: tags
+  identity: identity
   properties: {
     hardwareProfile: {
       vmSize: vmSize
