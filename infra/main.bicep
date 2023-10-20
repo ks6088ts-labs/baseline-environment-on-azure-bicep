@@ -117,6 +117,23 @@ param bastionHostEnabled bool = false
 @description('Specifies whether creating the Azure NAT Gateway resource or not.')
 param natGatewayEnabled bool = false
 
+@description('Specifies whether creating the Azure Virtual Machine resource or not.')
+param virtualMachineEnabled bool = false
+
+@description('Specifies the name of the administrator account of the virtual machine.')
+param vmAdminUsername string
+
+@description('Specifies the SSH Key or password for the virtual machine. SSH key is recommended.')
+@secure()
+param vmAdminPasswordOrKey string
+
+@description('Specifies the type of authentication when accessing the Virtual Machine. SSH key is recommended.')
+@allowed([
+  'sshPublicKey'
+  'password'
+])
+param authenticationType string = 'password'
+
 module workspace './modules/logAnalytics.bicep' = {
   name: 'workspace'
   params: {
@@ -173,6 +190,19 @@ module network './modules/virtualNetwork.bicep' = if (virtualNetworkEnabled) {
     bastionHostEnabled: bastionHostEnabled
     natGatewayName: '${prefix}-natgw'
     natGatewayEnabled: natGatewayEnabled
+    location: location
+    tags: tags
+  }
+}
+
+module virtualMachine './modules/virtualMachine.bicep' = if (virtualMachineEnabled) {
+  name: 'virtualMachine'
+  params: {
+    vmSubnetId: network.outputs.vmSubnetId
+    vmAdminPasswordOrKey: vmAdminPasswordOrKey
+    vmAdminUsername: vmAdminUsername
+    authenticationType: authenticationType
+    managedIdentityName: letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}AzureMonitorAgentManagedIdentity' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}AzureMonitorAgentManagedIdentity' : '${toLower(prefix)}-azure-monitor-agent-managed-identity'
     location: location
     tags: tags
   }
