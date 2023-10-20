@@ -33,8 +33,20 @@
     "iotHubEnabled": {
       "value": true
     },
+    "virtualMachineEnabled": {
+      "value": true
+    },
     "virtualNetworkEnabled": {
       "value": true
+    },
+    "authenticationType": {
+      "value": "sshPublicKey"
+    },
+    "vmAdminUsername": {
+      "value": "azadmin"
+    },
+    "vmAdminPasswordOrKey": {
+      "value": "<ssh-public-key>"
     },
     "tags": {
       "value": {
