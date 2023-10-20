@@ -105,6 +105,18 @@ param iotHubName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(
 ])
 param iotHubSku string = 'S1'
 
+@description('Specifies whether creating the Azure Virtual Network resource or not.')
+param virtualNetworkEnabled bool = false
+
+@description('Name of your Azure Virtual Network')
+param virtualNetworkName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}VNet' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}VNet' : '${toLower(prefix)}-vnet'
+
+@description('Specifies whether creating the Azure Bastion Host resource or not.')
+param bastionHostEnabled bool = false
+
+@description('Specifies whether creating the Azure NAT Gateway resource or not.')
+param natGatewayEnabled bool = false
+
 module workspace './modules/logAnalytics.bicep' = {
   name: 'workspace'
   params: {
@@ -148,6 +160,19 @@ module iotHub './modules/iotHub.bicep' = if (iotHubEnabled) {
   params: {
     name: iotHubName
     sku: iotHubSku
+    location: location
+    tags: tags
+  }
+}
+
+module network './modules/virtualNetwork.bicep' = if (virtualNetworkEnabled) {
+  name: 'virtualNetwork'
+  params: {
+    virtualNetworkName: virtualNetworkName
+    bastionHostName: '${prefix}-bastion'
+    bastionHostEnabled: bastionHostEnabled
+    natGatewayName: '${prefix}-natgw'
+    natGatewayEnabled: natGatewayEnabled
     location: location
     tags: tags
   }
