@@ -27,6 +27,9 @@
         }
       ]
     },
+    "cognitiveSearchEnabled": {
+      "value": true
+    },
     "containerRegistryEnabled": {
       "value": true
     },
