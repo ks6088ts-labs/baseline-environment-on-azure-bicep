@@ -33,6 +33,9 @@
     "iotHubEnabled": {
       "value": true
     },
+    "virtualNetworkEnabled": {
+      "value": true
+    },
     "tags": {
       "value": {
         "env": "dev"
