@@ -66,6 +66,14 @@ param openAiPublicNetworkAccess string = 'Enabled'
 @description('Specifies the OpenAI deployments to create.')
 param openAiDeployments array = []
 
+@description('Specifies whether creating the Azure Cognitive Search resource or not.')
+param cognitiveSearchEnabled bool = false
+
+@description('Name of your Azure Cognitive Search')
+@minLength(5)
+@maxLength(60)
+param cognitiveSearchName string = '${toLower(prefix)}-search'
+
 @description('Specifies whether creating the Azure Container Registry resource or not.')
 param containerRegistryEnabled bool = false
 
@@ -155,6 +163,15 @@ module openAi './modules/openAi.bicep' = if (openAiEnabled) {
     publicNetworkAccess: openAiPublicNetworkAccess
     deployments: openAiDeployments
     workspaceId: workspace.outputs.id
+    location: location
+    tags: tags
+  }
+}
+
+module cognitiveSearch './modules/cognitiveSearch.bicep' = if (cognitiveSearchEnabled) {
+  name: 'cognitiveSearch'
+  params: {
+    name: cognitiveSearchName
     location: location
     tags: tags
   }
