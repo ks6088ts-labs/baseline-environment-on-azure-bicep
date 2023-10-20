@@ -30,6 +30,9 @@
     "containerRegistryEnabled": {
       "value": true
     },
+    "iotHubEnabled": {
+      "value": true
+    },
     "tags": {
       "value": {
         "env": "dev"
