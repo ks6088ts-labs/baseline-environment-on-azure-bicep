@@ -62,7 +62,7 @@ ci-test: ## ci test
 	done
 
 .PHONY: _ci-test-base
-_ci-test-base: install-deps-dev lint build test
+_ci-test-base: install-deps-dev lint build test deployment-what-if
 
 .PHONY: create-resource-group
 create-resource-group: ## create resource group

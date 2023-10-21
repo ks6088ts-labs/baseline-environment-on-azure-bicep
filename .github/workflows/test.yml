@@ -26,5 +26,4 @@ jobs:
         with:
           inlineScript: |
             cd infra
-            make ci-test
-            make deployment-what-if RESOURCE_GROUP_NAME=${{ secrets.AZURE_RG }}
+            make ci-test RESOURCE_GROUP_NAME=${{ secrets.AZURE_RG }}
