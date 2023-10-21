@@ -185,7 +185,7 @@ param vmAdminPasswordOrKey string
 ])
 param authenticationType string = 'password'
 
-module keyVault './modules/keyVault.bicep' = if (keyVaultEnabled) {
+module keyVault '../../modules/keyVault.bicep' = if (keyVaultEnabled) {
   name: 'keyVault'
   params: {
     name: keyVaultName
@@ -201,7 +201,7 @@ module keyVault './modules/keyVault.bicep' = if (keyVaultEnabled) {
   }
 }
 
-module storageAccount './modules/storageAccount.bicep' = if (storageAccountEnabled) {
+module storageAccount '../../modules/storageAccount.bicep' = if (storageAccountEnabled) {
   name: 'storageAccount'
   params: {
     name: storageAccountName
@@ -217,7 +217,7 @@ module storageAccount './modules/storageAccount.bicep' = if (storageAccountEnabl
   }
 }
 
-module workspace './modules/logAnalytics.bicep' = {
+module workspace '../../modules/logAnalytics.bicep' = {
   name: 'workspace'
   params: {
     name: logAnalyticsWorkspaceName
@@ -228,7 +228,7 @@ module workspace './modules/logAnalytics.bicep' = {
   }
 }
 
-module apim './modules/apiManagement.bicep' = if (apiManagementEnabled) {
+module apim '../../modules/apiManagement.bicep' = if (apiManagementEnabled) {
   name: 'apiManagement'
   params: {
     name: apiManagementName
@@ -237,7 +237,7 @@ module apim './modules/apiManagement.bicep' = if (apiManagementEnabled) {
   }
 }
 
-module openAi './modules/openAi.bicep' = if (openAiEnabled) {
+module openAi '../../modules/openAi.bicep' = if (openAiEnabled) {
   name: 'openAi'
   params: {
     name: openAiName
@@ -252,7 +252,7 @@ module openAi './modules/openAi.bicep' = if (openAiEnabled) {
   }
 }
 
-module cognitiveSearch './modules/cognitiveSearch.bicep' = if (cognitiveSearchEnabled) {
+module cognitiveSearch '../../modules/cognitiveSearch.bicep' = if (cognitiveSearchEnabled) {
   name: 'cognitiveSearch'
   params: {
     name: cognitiveSearchName
@@ -261,7 +261,7 @@ module cognitiveSearch './modules/cognitiveSearch.bicep' = if (cognitiveSearchEn
   }
 }
 
-module containerRegistry './modules/containerRegistry.bicep' = if (containerRegistryEnabled) {
+module containerRegistry '../../modules/containerRegistry.bicep' = if (containerRegistryEnabled) {
   name: 'containerRegistry'
   params: {
     name: containerRegistryName
@@ -273,7 +273,7 @@ module containerRegistry './modules/containerRegistry.bicep' = if (containerRegi
   }
 }
 
-module iotHub './modules/iotHub.bicep' = if (iotHubEnabled) {
+module iotHub '../../modules/iotHub.bicep' = if (iotHubEnabled) {
   name: 'iotHub'
   params: {
     name: iotHubName
@@ -283,7 +283,7 @@ module iotHub './modules/iotHub.bicep' = if (iotHubEnabled) {
   }
 }
 
-module network './modules/virtualNetwork.bicep' = if (virtualNetworkEnabled) {
+module network '../../modules/virtualNetwork.bicep' = if (virtualNetworkEnabled) {
   name: 'virtualNetwork'
   params: {
     virtualNetworkName: virtualNetworkName
@@ -299,7 +299,7 @@ module network './modules/virtualNetwork.bicep' = if (virtualNetworkEnabled) {
   }
 }
 
-module virtualMachine './modules/virtualMachine.bicep' = if (virtualMachineEnabled) {
+module virtualMachine '../../modules/virtualMachine.bicep' = if (virtualMachineEnabled) {
   name: 'virtualMachine'
   params: {
     vmSubnetId: network.outputs.vmSubnetId
