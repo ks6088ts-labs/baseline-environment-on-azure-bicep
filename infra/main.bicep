@@ -212,7 +212,6 @@ module storageAccount './modules/storageAccount.bicep' = if (storageAccountEnabl
     ]
     keyVaultName: keyVault.outputs.name
     workspaceId: workspace.outputs.id
-    retentionInDays: logAnalyticsRetentionInDays
     location: location
     tags: tags
   }
