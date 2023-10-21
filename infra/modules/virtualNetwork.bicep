@@ -56,6 +56,15 @@ param natGatewayPublicIps int = 1
 @description('Specifies the idle timeout in minutes for the Azure NAT Gateway.')
 param natGatewayIdleTimeoutMins int = 30
 
+@description('Specifies whether creating the Azure OpenAi resource or not.')
+param openAiEnabled bool = false
+
+@description('Specifies the name of the private link to the Azure OpenAI resource.')
+param openAiPrivateEndpointName string = 'OpenAiPrivateEndpoint'
+
+@description('Specifies the resource id of the Azure OpenAi.')
+param openAiId string
+
 @description('Specifies the location.')
 param location string = resourceGroup().location
 
@@ -349,6 +358,61 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2023-05-01' = if (bastionHo
           publicIPAddress: {
             id: bastionPublicIpAddress.id
           }
+        }
+      }
+    ]
+  }
+}
+
+resource openAiPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (openAiEnabled) {
+  name: 'privatelink.${toLower(environment().name) == 'azureusgovernment' ? 'openai.usgovcloudapi.net' : 'openai.azure.com'}'
+  location: 'global'
+  tags: tags
+}
+
+resource openAiPrivateDnsZoneVirtualNetworkLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (openAiEnabled) {
+  parent: openAiPrivateDnsZone
+  name: 'link_to_${toLower(virtualNetworkName)}'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnet.id
+    }
+  }
+}
+
+resource openAiPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = if (openAiEnabled) {
+  name: openAiPrivateEndpointName
+  location: location
+  tags: tags
+  properties: {
+    privateLinkServiceConnections: [
+      {
+        name: openAiPrivateEndpointName
+        properties: {
+          privateLinkServiceId: openAiId
+          groupIds: [
+            'account'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: '${vnet.id}/subnets/${vmSubnetName}'
+    }
+  }
+}
+
+resource openAiPrivateDnsZoneGroupName 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-05-01' = if (openAiEnabled) {
+  parent: openAiPrivateEndpoint
+  name: 'PrivateDnsZoneGroupName'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'dnsConfig'
+        properties: {
+          privateDnsZoneId: openAiPrivateDnsZone.id
         }
       }
     ]
