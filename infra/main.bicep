@@ -37,6 +37,12 @@ param logAnalyticsSku string = 'PerGB2018'
 @description('Specifies the workspace data retention in days. -1 means Unlimited retention for the Unlimited Sku. 730 days is the maximum allowed for all other Skus.')
 param logAnalyticsRetentionInDays int = 60
 
+@description('Specifies whether creating the API Management resource or not.')
+param apiManagementEnabled bool = false
+
+@description('Specifies the name of the API Management.')
+param apiManagementName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Apim' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Apim' : '${toLower(prefix)}-apim'
+
 @description('Specifies whether creating the Azure OpenAi resource or not.')
 param openAiEnabled bool = false
 
@@ -149,6 +155,15 @@ module workspace './modules/logAnalytics.bicep' = {
     location: location
     sku: logAnalyticsSku
     retentionInDays: logAnalyticsRetentionInDays
+    tags: tags
+  }
+}
+
+module apim './modules/apiManagement.bicep' = if (apiManagementEnabled) {
+  name: 'apiManagement'
+  params: {
+    name: apiManagementName
+    location: location
     tags: tags
   }
 }
