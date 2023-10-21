@@ -18,6 +18,34 @@ param tags object = {
   IaC: 'Bicep'
 }
 
+@description('Specifies whether creating the Azure Key Vault resource or not.')
+param keyVaultEnabled bool = false
+
+@description('Specifies the name of the Key Vault resource.')
+param keyVaultName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}KeyVault' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}KeyVault' : '${toLower(prefix)}-key-vault'
+
+@description('The default action of allow or deny when no other rules match. Allowed values: Allow or Deny')
+@allowed([
+  'Allow'
+  'Deny'
+])
+param keyVaultNetworkAclsDefaultAction string = 'Allow'
+
+@description('Specifies whether the Azure Key Vault resource is enabled for deployments.')
+param keyVaultEnabledForDeployment bool = true
+
+@description('Specifies whether the Azure Key Vault resource is enabled for disk encryption.')
+param keyVaultEnabledForDiskEncryption bool = true
+
+@description('Specifies whether the Azure Key Vault resource is enabled for template deployment.')
+param keyVaultEnabledForTemplateDeployment bool = true
+
+@description('Specifies whether the soft deelete is enabled for this Azure Key Vault resource.')
+param keyVaultEnableSoftDelete bool = true
+
+@description('Specifies the object ID ofthe service principals to configure in Key Vault access policies.')
+param keyVaultObjectIds array = []
+
 @description('Specifies the name of the Log Analytics Workspace.')
 param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
 
@@ -150,6 +178,22 @@ param vmAdminPasswordOrKey string
   'password'
 ])
 param authenticationType string = 'password'
+
+module keyVault './modules/keyVault.bicep' = if (keyVaultEnabled) {
+  name: 'keyVault'
+  params: {
+    name: keyVaultName
+    networkAclsDefaultAction: keyVaultNetworkAclsDefaultAction
+    enabledForDeployment: keyVaultEnabledForDeployment
+    enabledForDiskEncryption: keyVaultEnabledForDiskEncryption
+    enabledForTemplateDeployment: keyVaultEnabledForTemplateDeployment
+    enableSoftDelete: keyVaultEnableSoftDelete
+    objectIds: keyVaultObjectIds
+    workspaceId: workspace.outputs.id
+    location: location
+    tags: tags
+  }
+}
 
 module workspace './modules/logAnalytics.bicep' = {
   name: 'workspace'
