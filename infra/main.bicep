@@ -50,7 +50,7 @@ param keyVaultObjectIds array = []
 param storageAccountEnabled bool = false
 
 @description('Specifies the name of the storage account')
-param storageAccountName string = '${toLower(prefix)}-sa'
+param storageAccountName string = '${toLower(prefix)}sa'
 
 @description('Specifies the name of the Log Analytics Workspace.')
 param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
