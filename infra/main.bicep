@@ -46,6 +46,12 @@ param keyVaultEnableSoftDelete bool = true
 @description('Specifies the object ID ofthe service principals to configure in Key Vault access policies.')
 param keyVaultObjectIds array = []
 
+@description('Specifies whether creating the Azure Storage Account resource or not.')
+param storageAccountEnabled bool = false
+
+@description('Specifies the name of the storage account')
+param storageAccountName string = '${toLower(prefix)}sa'
+
 @description('Specifies the name of the Log Analytics Workspace.')
 param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
 
@@ -189,6 +195,22 @@ module keyVault './modules/keyVault.bicep' = if (keyVaultEnabled) {
     enabledForTemplateDeployment: keyVaultEnabledForTemplateDeployment
     enableSoftDelete: keyVaultEnableSoftDelete
     objectIds: keyVaultObjectIds
+    workspaceId: workspace.outputs.id
+    location: location
+    tags: tags
+  }
+}
+
+module storageAccount './modules/storageAccount.bicep' = if (storageAccountEnabled) {
+  name: 'storageAccount'
+  params: {
+    name: storageAccountName
+    createContainers: true
+    containerNames: [
+      'dev'
+      'prod'
+    ]
+    keyVaultName: keyVault.outputs.name
     workspaceId: workspace.outputs.id
     location: location
     tags: tags
