@@ -8,6 +8,9 @@
     "logAnalyticsRetentionInDays": {
       "value": 30
     },
+    "apiManagementEnabled": {
+      "value": true
+    },
     "openAiEnabled": {
       "value": true
     },
