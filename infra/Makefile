@@ -9,12 +9,13 @@ SUBSCRIPTION_ID ?= $(shell az account show --query id --output tsv)
 SUBSCRIPTION_NAME ?= $(shell az account show --query name --output tsv)
 TENANT_ID ?= $(shell az account show --query tenantId --output tsv)
 
-TEMPLATE_FILE ?= main.bicep
-PARAMETERS_FILE ?= main.parameters.json
+SCENARIO ?= baseline
+TEMPLATE_FILE ?= scenarios/$(SCENARIO)/main.bicep
+PARAMETERS_FILE ?= scenarios/$(SCENARIO)/main.parameters.json
 OUT_DIR ?= ./artifacts
-OUT_FILE ?= main.$(GIT_REVISION).json
+OUT_FILE ?= $(SCENARIO).$(GIT_REVISION).json
 
-RESOURCE_GROUP_NAME ?= rg-baseline
+RESOURCE_GROUP_NAME ?= rg-$(SCENARIO)
 LOCATION ?= japaneast
 
 .PHONY: help
@@ -27,6 +28,8 @@ info: ## show information
 	@echo "SUBSCRIPTION_ID: $(SUBSCRIPTION_ID)"
 	@echo "SUBSCRIPTION_NAME: $(SUBSCRIPTION_NAME)"
 	@echo "TENANT_ID: $(TENANT_ID)"
+	@echo "GIT_REVISION: $(GIT_REVISION)"
+	@echo "GIT_TAG: $(GIT_TAG)"
 
 .PHONY: install-deps-dev
 install-deps-dev: ## install dependencies for development
@@ -52,7 +55,14 @@ test: ## test codes
 	@echo "test: Skip since not implemented yet"
 
 .PHONY: ci-test
-ci-test: install-deps-dev lint build test ## ci test
+ci-test: ## ci test
+	@for dir in $(shell find scenarios/* -type d) ; do \
+		echo "Test: $$dir" ; \
+		make _ci-test-base SCENARIO=$$(basename $$dir) || exit 1 ; \
+	done
+
+.PHONY: _ci-test-base
+_ci-test-base: install-deps-dev lint build test
 
 .PHONY: create-resource-group
 create-resource-group: ## create resource group
