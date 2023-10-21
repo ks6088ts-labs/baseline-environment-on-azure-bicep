@@ -63,7 +63,7 @@ param openAiEnabled bool = false
 param openAiPrivateEndpointName string = 'OpenAiPrivateEndpoint'
 
 @description('Specifies the resource id of the Azure OpenAi.')
-param openAiId string
+param openAiId string = ''
 
 @description('Specifies the location.')
 param location string = resourceGroup().location
