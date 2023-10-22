@@ -83,6 +83,15 @@ param appServicePlanEnabled bool = false
 @description('Specifies the name of the Azure App Service Plan.')
 param appServicePlanName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Asp' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Asp' : '${toLower(prefix)}-asp'
 
+@description('Specifies whether creating the Azure App Service resource or not.')
+param appServiceEnabled bool = false
+
+@description('Specifies the name of the Azure App Service.')
+param appServiceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}As' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}As' : '${toLower(prefix)}-as'
+
+@description('')
+param appServiceAllowedOrigins array = []
+
 @description('Specifies whether creating the Azure OpenAi resource or not.')
 param openAiEnabled bool = false
 
@@ -249,6 +258,26 @@ module appServicePlan '../../modules/appServicePlan.bicep' = if (appServicePlanE
     name: appServicePlanName
     location: location
     tags: tags
+  }
+}
+
+module backend '../../modules/appService.bicep' = if (appServicePlanEnabled && appServiceEnabled) {
+  name: 'appService'
+  params: {
+    name: appServiceName
+    location: location
+    tags: tags
+    appServicePlanId: appServicePlan.outputs.id
+    runtimeName: 'python'
+    runtimeVersion: '3.11'
+    appCommandLine: 'python3 -m gunicorn main:app'
+    scmDoBuildDuringDeployment: true
+    managedIdentity: true
+    allowedOrigins: appServiceAllowedOrigins
+    appSettings: {
+      AZURE_TENANT_ID: tenant().tenantId
+      AZURE_SUBSCRIPTION_ID: subscription().subscriptionId
+    }
   }
 }
 

@@ -20,6 +20,9 @@
     "appServicePlanEnabled": {
       "value": true
     },
+    "appServiceEnabled": {
+      "value": true
+    },
     "openAiEnabled": {
       "value": true
     },
