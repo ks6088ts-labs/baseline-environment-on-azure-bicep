@@ -27,3 +27,10 @@ install-deps-dev               install dependencies for development
 lint                           lint codes
 test                           test codes
 ```
+
+## Scenarios
+
+| Scenario                                         | Overview                                  |
+| ------------------------------------------------ | ----------------------------------------- |
+| [example](./infra/scenarios/example/README.md)   | Example for describing how to use modules |
+| [iot-edge](./infra/scenarios/iot-edge/README.md) | IoT Edge workshop                         |

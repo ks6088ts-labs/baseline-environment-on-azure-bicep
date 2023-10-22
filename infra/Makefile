@@ -9,7 +9,7 @@ SUBSCRIPTION_ID ?= $(shell az account show --query id --output tsv)
 SUBSCRIPTION_NAME ?= $(shell az account show --query name --output tsv)
 TENANT_ID ?= $(shell az account show --query tenantId --output tsv)
 
-SCENARIO ?= baseline
+SCENARIO ?= example
 TEMPLATE_FILE ?= scenarios/$(SCENARIO)/main.bicep
 PARAMETERS_FILE ?= scenarios/$(SCENARIO)/main.parameters.json
 OUT_DIR ?= ./artifacts
