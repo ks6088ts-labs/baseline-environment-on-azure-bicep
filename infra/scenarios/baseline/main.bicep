@@ -77,6 +77,12 @@ param apiManagementEnabled bool = false
 @description('Specifies the name of the API Management.')
 param apiManagementName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Apim' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Apim' : '${toLower(prefix)}-apim'
 
+@description('Specifies whether creating the Azure App Service Plan resource or not.')
+param appServicePlanEnabled bool = false
+
+@description('Specifies the name of the Azure App Service Plan.')
+param appServicePlanName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Asp' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Asp' : '${toLower(prefix)}-asp'
+
 @description('Specifies whether creating the Azure OpenAi resource or not.')
 param openAiEnabled bool = false
 
@@ -232,6 +238,15 @@ module apim '../../modules/apiManagement.bicep' = if (apiManagementEnabled) {
   name: 'apiManagement'
   params: {
     name: apiManagementName
+    location: location
+    tags: tags
+  }
+}
+
+module appServicePlan '../../modules/appServicePlan.bicep' = if (appServicePlanEnabled) {
+  name: 'appServicePlan'
+  params: {
+    name: appServicePlanName
     location: location
     tags: tags
   }

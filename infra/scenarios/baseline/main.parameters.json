@@ -17,6 +17,9 @@
     "apiManagementEnabled": {
       "value": true
     },
+    "appServicePlanEnabled": {
+      "value": true
+    },
     "openAiEnabled": {
       "value": true
     },
