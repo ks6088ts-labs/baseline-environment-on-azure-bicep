@@ -186,9 +186,6 @@ param bastionHostEnabled bool = false
 @description('Specifies whether creating the Azure NAT Gateway resource or not.')
 param natGatewayEnabled bool = false
 
-@description('Specifies the name of the private link to the Azure OpenAI resource.')
-param openAiPrivateEndpointName string = letterCaseType == 'UpperCamelCase' ? 'OpenAiPrivateEndpoint' : letterCaseType == 'CamelCase' ? 'OpenAiPrivateEndpoint' : 'openai-private-endpoint'
-
 @description('Specifies whether creating the Azure Virtual Machine resource or not.')
 param virtualMachineEnabled bool = false
 
@@ -353,8 +350,9 @@ module network '../../modules/virtualNetwork.bicep' = if (virtualNetworkEnabled)
     bastionHostEnabled: bastionHostEnabled
     natGatewayName: '${prefix}-natgw'
     natGatewayEnabled: natGatewayEnabled
-    openAiEnabled: openAiEnabled
-    openAiPrivateEndpointName: openAiPrivateEndpointName
+    storageAccountId: storageAccountEnabled ? storageAccount.outputs.id : ''
+    keyVaultId: keyVaultEnabled ? keyVault.outputs.id : ''
+    acrId: containerRegistryEnabled ? containerRegistry.outputs.id : ''
     openAiId: openAiEnabled ? openAi.outputs.id : ''
     location: location
     tags: tags
