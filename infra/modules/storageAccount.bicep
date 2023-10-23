@@ -54,7 +54,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     name: 'default'
 
     // Creating containers with provided names if contition is true
-    resource containers 'containers' = [for containerName in containerNames: if(createContainers) {
+    resource containers 'containers' = [for containerName in containerNames: if (createContainers) {
       name: containerName
       properties: {
         publicAccess: 'None'
@@ -63,7 +63,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource blobServiceDiagnosticSettings  'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource blobServiceDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: diagnosticSettingsName
   scope: storageAccount::blobService
   properties: {
