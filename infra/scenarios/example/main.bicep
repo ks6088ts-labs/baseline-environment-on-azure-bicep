@@ -352,7 +352,7 @@ module network '../../modules/virtualNetwork.bicep' = if (virtualNetworkEnabled)
     natGatewayEnabled: natGatewayEnabled
     storageAccountId: storageAccountEnabled ? storageAccount.outputs.id : ''
     keyVaultId: keyVaultEnabled ? keyVault.outputs.id : ''
-    acrId: containerRegistryEnabled ? containerRegistry.outputs.id : ''
+    acrId: containerRegistryEnabled && (containerRegistrySku == 'Premium') ? containerRegistry.outputs.id : ''
     openAiId: openAiEnabled ? openAi.outputs.id : ''
     location: location
     tags: tags
