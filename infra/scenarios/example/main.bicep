@@ -52,6 +52,12 @@ param storageAccountEnabled bool = false
 @description('Specifies the name of the storage account')
 param storageAccountName string = '${toLower(prefix)}sa'
 
+@description('Specifies whether creating the Azure Cosmos DB resource or not.')
+param cosmosDbEnabled bool = false
+
+@description('Specifies the name of the Cosmos DB database.')
+param cosmosDbName string = '${toLower(prefix)}cosmosdb'
+
 @description('Specifies the name of the Log Analytics Workspace.')
 param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
 
@@ -232,6 +238,18 @@ module storageAccount '../../modules/storageAccount.bicep' = if (storageAccountE
   }
 }
 
+module cosmosDb '../../modules/cosmosDb.bicep' = if (cosmosDbEnabled) {
+  name: 'cosmosDb'
+  params: {
+    name: cosmosDbName
+    location: location
+    tags: tags
+    cosmosDbDatabaseName: '${cosmosDbName}Database'
+    cosmosDbContainerName: '${cosmosDbName}ContainerName'
+    publicNetworkAccess: 'Disabled'
+  }
+}
+
 module workspace '../../modules/logAnalytics.bicep' = {
   name: 'workspace'
   params: {
@@ -261,7 +279,7 @@ module appServicePlan '../../modules/appServicePlan.bicep' = if (appServicePlanE
   }
 }
 
-module backend '../../modules/appService.bicep' = if (appServicePlanEnabled && appServiceEnabled) {
+module appService '../../modules/appService.bicep' = if (appServicePlanEnabled && appServiceEnabled) {
   name: 'appService'
   params: {
     name: appServiceName

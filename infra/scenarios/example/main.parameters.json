@@ -8,6 +8,9 @@
     "storageAccountEnabled": {
       "value": true
     },
+    "cosmosDbEnabled": {
+      "value": true
+    },
     "logAnalyticsSku": {
       "value": "PerGB2018"
     },
