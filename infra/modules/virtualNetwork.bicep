@@ -56,8 +56,23 @@ param natGatewayPublicIps int = 1
 @description('Specifies the idle timeout in minutes for the Azure NAT Gateway.')
 param natGatewayIdleTimeoutMins int = 30
 
-@description('Specifies whether creating the Azure OpenAi resource or not.')
-param openAiEnabled bool = false
+@description('Specifies the name of the private link to the boot diagnostics storage account.')
+param storageAccountPrivateEndpointName string = 'BlobStorageAccountPrivateEndpoint'
+
+@description('Specifies the resource id of the Azure Storage Account.')
+param storageAccountId string = ''
+
+@description('Specifies the name of the private link to the Key Vault.')
+param keyVaultPrivateEndpointName string = 'KeyVaultPrivateEndpoint'
+
+@description('Specifies the resource id of the Azure Key vault.')
+param keyVaultId string = ''
+
+@description('Specifies the name of the private link to the Azure Container Registry.')
+param acrPrivateEndpointName string = 'AcrPrivateEndpoint'
+
+@description('Specifies the resource id of the Azure Container Registry.')
+param acrId string = ''
 
 @description('Specifies the name of the private link to the Azure OpenAI resource.')
 param openAiPrivateEndpointName string = 'OpenAiPrivateEndpoint'
@@ -70,6 +85,11 @@ param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
 param tags object
+
+var storageAccountEnabled = !empty(storageAccountId)
+var keyVaultEnabled = !empty(keyVaultId)
+var acrEnabled = !empty(acrId)
+var openAiEnabled = !empty(openAiId)
 
 var bastionSubnetName = 'AzureBastionSubnet'
 var bastionPublicIpAddressName = '${bastionHostName}PublicIp'
@@ -364,10 +384,66 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2023-05-01' = if (bastionHo
   }
 }
 
+// Private DNS Zones
+resource acrPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (acrEnabled) {
+  name: 'privatelink.${toLower(environment().name) == 'azureusgovernment' ? 'azurecr.us' : 'azurecr.io'}'
+  location: 'global'
+  tags: tags
+}
+
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (storageAccountEnabled) {
+  name: 'privatelink.blob.${environment().suffixes.storage}'
+  location: 'global'
+  tags: tags
+}
+
+resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (keyVaultEnabled) {
+  name: 'privatelink.${toLower(environment().name) == 'azureusgovernment' ? 'vaultcore.usgovcloudapi.net' : 'vaultcore.azure.net'}'
+  location: 'global'
+  tags: tags
+}
+
 resource openAiPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (openAiEnabled) {
   name: 'privatelink.${toLower(environment().name) == 'azureusgovernment' ? 'openai.usgovcloudapi.net' : 'openai.azure.com'}'
   location: 'global'
   tags: tags
+}
+
+// Virtual Network Links
+resource acrPrivateDnsZoneVirtualNetworkLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (acrEnabled) {
+  parent: acrPrivateDnsZone
+  name: 'link_to_${toLower(virtualNetworkName)}'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnet.id
+    }
+  }
+}
+
+resource blobPrivateDnsZoneVirtualNetworkLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (storageAccountEnabled) {
+  parent: blobPrivateDnsZone
+  name: 'link_to_${toLower(virtualNetworkName)}'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnet.id
+    }
+  }
+}
+
+resource keyVaultPrivateDnsZoneVirtualNetworkLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (keyVaultEnabled) {
+  parent: keyVaultPrivateDnsZone
+  name: 'link_to_${toLower(virtualNetworkName)}'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnet.id
+    }
+  }
 }
 
 resource openAiPrivateDnsZoneVirtualNetworkLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (openAiEnabled) {
@@ -379,6 +455,118 @@ resource openAiPrivateDnsZoneVirtualNetworkLink 'Microsoft.Network/privateDnsZon
     virtualNetwork: {
       id: vnet.id
     }
+  }
+}
+
+// Private Endpoints
+resource acrPrivateEndpoint 'Microsoft.Network/privateEndpoints@2022-09-01' = if (acrEnabled) {
+  name: acrPrivateEndpointName
+  location: location
+  tags: tags
+  properties: {
+    privateLinkServiceConnections: [
+      {
+        name: acrPrivateEndpointName
+        properties: {
+          privateLinkServiceId: acrId
+          groupIds: [
+            'registry'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: '${vnet.id}/subnets/${vmSubnetName}'
+    }
+  }
+}
+
+resource acrPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2022-09-01' = if (acrEnabled) {
+  parent: acrPrivateEndpoint
+  name: 'acrPrivateDnsZoneGroup'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'dnsConfig'
+        properties: {
+          privateDnsZoneId: acrPrivateDnsZone.id
+        }
+      }
+    ]
+  }
+}
+
+resource blobStorageAccountPrivateEndpoint 'Microsoft.Network/privateEndpoints@2022-09-01' = if (storageAccountEnabled) {
+  name: storageAccountPrivateEndpointName
+  location: location
+  tags: tags
+  properties: {
+    privateLinkServiceConnections: [
+      {
+        name: storageAccountPrivateEndpointName
+        properties: {
+          privateLinkServiceId: storageAccountId
+          groupIds: [
+            'blob'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: '${vnet.id}/subnets/${vmSubnetName}'
+    }
+  }
+}
+
+resource blobStorageAccountPrivateDnsZoneGroupName 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2022-09-01' = if (storageAccountEnabled) {
+  parent: blobStorageAccountPrivateEndpoint
+  name: 'PrivateDnsZoneGroupName'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'dnsConfig'
+        properties: {
+          privateDnsZoneId: blobPrivateDnsZone.id
+        }
+      }
+    ]
+  }
+}
+
+resource keyVaultPrivateEndpoint 'Microsoft.Network/privateEndpoints@2022-09-01' = if (keyVaultEnabled) {
+  name: keyVaultPrivateEndpointName
+  location: location
+  tags: tags
+  properties: {
+    privateLinkServiceConnections: [
+      {
+        name: keyVaultPrivateEndpointName
+        properties: {
+          privateLinkServiceId: keyVaultId
+          groupIds: [
+            'vault'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: '${vnet.id}/subnets/${vmSubnetName}'
+    }
+  }
+}
+
+resource keyVaultPrivateDnsZoneGroupName 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2022-09-01' = if (keyVaultEnabled) {
+  parent: keyVaultPrivateEndpoint
+  name: 'PrivateDnsZoneGroupName'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'dnsConfig'
+        properties: {
+          privateDnsZoneId: keyVaultPrivateDnsZone.id
+        }
+      }
+    ]
   }
 }
 
