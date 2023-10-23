@@ -8,16 +8,7 @@
     "logAnalyticsRetentionInDays": {
       "value": 30
     },
-    "containerRegistryEnabled": {
-      "value": true
-    },
-    "iotHubEnabled": {
-      "value": true
-    },
-    "virtualMachineEnabled": {
-      "value": true
-    },
-    "virtualNetworkEnabled": {
+    "containerRegistryAdminUserEnabled": {
       "value": true
     },
     "authenticationType": {

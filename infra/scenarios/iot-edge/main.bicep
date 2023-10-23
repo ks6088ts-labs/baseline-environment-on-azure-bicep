@@ -37,9 +37,6 @@ param logAnalyticsSku string = 'PerGB2018'
 @description('Specifies the workspace data retention in days. -1 means Unlimited retention for the Unlimited Sku. 730 days is the maximum allowed for all other Skus.')
 param logAnalyticsRetentionInDays int = 60
 
-@description('Specifies whether creating the Azure Container Registry resource or not.')
-param containerRegistryEnabled bool = false
-
 @description('Name of your Azure Container Registry')
 @minLength(5)
 @maxLength(50)
@@ -55,9 +52,6 @@ param containerRegistryAdminUserEnabled bool = false
   'Premium'
 ])
 param containerRegistrySku string = 'Standard'
-
-@description('Specifies whether creating the Azure IoT Hub resource or not.')
-param iotHubEnabled bool = false
 
 @description('Name of your Azure IoT Hub')
 @minLength(5)
@@ -76,9 +70,6 @@ param iotHubName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(
 ])
 param iotHubSku string = 'S1'
 
-@description('Specifies whether creating the Azure Virtual Network resource or not.')
-param virtualNetworkEnabled bool = false
-
 @description('Name of your Azure Virtual Network')
 param virtualNetworkName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}VNet' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}VNet' : '${toLower(prefix)}-vnet'
 
@@ -87,9 +78,6 @@ param bastionHostEnabled bool = false
 
 @description('Specifies whether creating the Azure NAT Gateway resource or not.')
 param natGatewayEnabled bool = false
-
-@description('Specifies whether creating the Azure Virtual Machine resource or not.')
-param virtualMachineEnabled bool = false
 
 @description('Specifies the name of the administrator account of the virtual machine.')
 param vmAdminUsername string
@@ -116,7 +104,7 @@ module workspace '../../modules/logAnalytics.bicep' = {
   }
 }
 
-module containerRegistry '../../modules/containerRegistry.bicep' = if (containerRegistryEnabled) {
+module containerRegistry '../../modules/containerRegistry.bicep' = {
   name: 'containerRegistry'
   params: {
     name: containerRegistryName
@@ -128,7 +116,7 @@ module containerRegistry '../../modules/containerRegistry.bicep' = if (container
   }
 }
 
-module iotHub '../../modules/iotHub.bicep' = if (iotHubEnabled) {
+module iotHub '../../modules/iotHub.bicep' = {
   name: 'iotHub'
   params: {
     name: iotHubName
@@ -138,7 +126,7 @@ module iotHub '../../modules/iotHub.bicep' = if (iotHubEnabled) {
   }
 }
 
-module network '../../modules/virtualNetwork.bicep' = if (virtualNetworkEnabled) {
+module network '../../modules/virtualNetwork.bicep' = {
   name: 'virtualNetwork'
   params: {
     virtualNetworkName: virtualNetworkName
@@ -151,7 +139,7 @@ module network '../../modules/virtualNetwork.bicep' = if (virtualNetworkEnabled)
   }
 }
 
-module virtualMachine '../../modules/virtualMachine.bicep' = if (virtualMachineEnabled) {
+module virtualMachine '../../modules/virtualMachine.bicep' = {
   name: 'virtualMachine'
   params: {
     vmSubnetId: network.outputs.vmSubnetId
