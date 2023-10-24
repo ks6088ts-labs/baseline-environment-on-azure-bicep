@@ -14,6 +14,9 @@ param vmSubnetAddressPrefix string = '10.3.1.0/24'
 @description('Specifies the name of the network security group associated to the subnet hosting the virtual machine.')
 param vmSubnetNsgName string = 'VmSubnetNsg'
 
+@description('Specifies the Infrastructure subnet IP prefix. This prefix must be within vnet IP prefix address space.')
+param infrastructureSubnetAddressPrefix string = '10.0.0.0/21'
+
 @description('Specifies the Bastion subnet IP prefix. This prefix must be within vnet IP prefix address space.')
 param bastionSubnetAddressPrefix string = '10.3.2.0/24'
 
@@ -91,6 +94,7 @@ var keyVaultEnabled = !empty(keyVaultId)
 var acrEnabled = !empty(acrId)
 var openAiEnabled = !empty(openAiId)
 
+var infrastructureSubnetName = 'InfrastructureSubnet'
 var bastionSubnetName = 'AzureBastionSubnet'
 var bastionPublicIpAddressName = '${bastionHostName}PublicIp'
 var vmSubnet = {
@@ -107,6 +111,15 @@ var vmSubnet = {
     } : null
   }
 }
+var infrastructureSubnet = {
+  name: infrastructureSubnetName
+  properties: {
+    addressPrefix: infrastructureSubnetAddressPrefix
+    delegations: []
+    privateEndpointNetworkPolicies: 'Disabled'
+    privateLinkServiceNetworkPolicies: 'Enabled'
+  }
+}
 var bastionSubnet = {
   name: bastionSubnetName
   properties: {
@@ -118,6 +131,7 @@ var bastionSubnet = {
 }
 var subnets = union(
   array(vmSubnet),
+  array(infrastructureSubnet),
   bastionHostEnabled ? array(bastionSubnet) : []
 )
 
@@ -614,3 +628,4 @@ output vmSubnetId string = resourceId('Microsoft.Network/virtualNetworks/subnets
 output bastionSubnetId string = resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, bastionSubnetName)
 output vmSubnetName string = vmSubnetName
 output bastionSubnetName string = bastionSubnetName
+output infrastructureSubnetId string = resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, infrastructureSubnetName)
