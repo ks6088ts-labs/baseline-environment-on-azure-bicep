@@ -6,7 +6,7 @@ param name string
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object
+param tags object = {}
 
 // Reference Properties
 param applicationInsightsName string = ''

@@ -14,9 +14,7 @@ param letterCaseType string = 'UpperCamelCase'
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object = {
-  IaC: 'Bicep'
-}
+param tags object = {}
 
 @description('Specifies the name of the Log Analytics Workspace.')
 param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'

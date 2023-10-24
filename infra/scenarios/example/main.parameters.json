@@ -64,7 +64,7 @@
     },
     "tags": {
       "value": {
-        "env": "dev"
+        "scenario": "example"
       }
     }
   }

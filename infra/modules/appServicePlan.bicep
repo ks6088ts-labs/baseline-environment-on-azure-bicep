@@ -6,7 +6,7 @@ param name string
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object
+param tags object = {}
 
 @description('Specifies the kind of the App Service Plan. Allowed values are linux, functionapp, elasticpremium, virtualmachine, windows.')
 @allowed([

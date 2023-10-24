@@ -8,7 +8,7 @@ param name string
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object
+param tags object = {}
 
 @description('The SKU to use for the IoT Hub.')
 @allowed([

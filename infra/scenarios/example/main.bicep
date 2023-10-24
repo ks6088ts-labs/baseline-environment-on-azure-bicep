@@ -14,9 +14,7 @@ param letterCaseType string = 'UpperCamelCase'
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object = {
-  IaC: 'Bicep'
-}
+param tags object = {}
 
 @description('Specifies whether creating the Azure Log Analytics Workspace resource or not.')
 param logAnalyticsEnabled bool = false
