@@ -329,7 +329,7 @@ module containerRegistry '../../modules/containerRegistry.bicep' = if (container
     name: containerRegistryName
     sku: containerRegistrySku
     adminUserEnabled: containerRegistryAdminUserEnabled
-    workspaceId: workspace.outputs.id
+    workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
     location: location
     tags: tags
   }

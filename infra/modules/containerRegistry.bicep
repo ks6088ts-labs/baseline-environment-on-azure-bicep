@@ -14,15 +14,16 @@ param adminUserEnabled bool = false
 param sku string = 'Basic'
 
 @description('Specifies the resource id of the Log Analytics workspace.')
-param workspaceId string
+param workspaceId string = ''
 
 @description('Specifies the location.')
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object
+param tags object = {}
 
 // Variables
+var logAnalyticsEnabled = !empty(workspaceId)
 var diagnosticSettingsName = 'diagnosticSettings'
 var logCategories = [
   'ContainerRegistryRepositoryEvents'
@@ -53,7 +54,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-08-01-pr
   }
 }
 
-resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (logAnalyticsEnabled) {
   name: diagnosticSettingsName
   scope: containerRegistry
   properties: {
