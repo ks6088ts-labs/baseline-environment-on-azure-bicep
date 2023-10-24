@@ -33,7 +33,20 @@
       "value": true
     },
     "openAiDeployments": {
-      "value": []
+      "value": [
+        {
+          "name": "text-embedding-ada-002",
+          "version": "2",
+          "raiPolicyName": "",
+          "capacity": 30
+        },
+        {
+          "name": "gpt-35-turbo",
+          "version": "0613",
+          "raiPolicyName": "",
+          "capacity": 30
+        }
+      ]
     },
     "openAiPublicNetworkAccess": {
       "value": "Enabled"

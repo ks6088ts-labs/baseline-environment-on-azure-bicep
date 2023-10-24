@@ -68,6 +68,7 @@ resource openAi 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   }
 }
 
+@batchSize(1)
 resource model 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for deployment in deployments: {
   name: deployment.name
   parent: openAi
