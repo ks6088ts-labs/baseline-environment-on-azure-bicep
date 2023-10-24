@@ -16,7 +16,7 @@ param identity object = {
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object
+param tags object = {}
 
 @description('Specifies an optional subdomain name used for token-based authentication.')
 param customSubDomainName string = ''
@@ -32,10 +32,11 @@ param publicNetworkAccess string = 'Enabled'
 param deployments array = []
 
 @description('Specifies the workspace id of the Log Analytics used to monitor the Application Gateway.')
-param workspaceId string
+param workspaceId string = ''
 
 // Variables
-var diagnosticSettingsName = 'diagnosticSettings'
+var logAnalyticsEnabled = !empty(workspaceId)
+var diagnosticSettingsName = '${name}OpenAiDiagnosticSettings'
 var openAiLogCategories = [
   'Audit'
   'RequestResponse'
@@ -84,7 +85,7 @@ resource model 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [
   }
 }]
 
-resource openAiDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (logAnalyticsEnabled) {
   name: diagnosticSettingsName
   scope: openAi
   properties: {

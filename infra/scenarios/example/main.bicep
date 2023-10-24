@@ -14,9 +14,29 @@ param letterCaseType string = 'UpperCamelCase'
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object = {
-  IaC: 'Bicep'
-}
+param tags object = {}
+
+@description('Specifies whether creating the Azure Log Analytics Workspace resource or not.')
+param logAnalyticsEnabled bool = false
+
+@description('Specifies the name of the Log Analytics Workspace.')
+param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
+
+@description('Specify the pricing tier: PerGB2018 or legacy tiers (Free, Standalone, PerNode, Standard or Premium) which are not available to all customers.')
+@allowed([
+  'CapacityReservation'
+  'Free'
+  'LACluster'
+  'PerGB2018'
+  'PerNode'
+  'Premium'
+  'Standalone'
+  'Standard'
+])
+param logAnalyticsSku string = 'PerGB2018'
+
+@description('Specifies the workspace data retention in days. -1 means Unlimited retention for the Unlimited Sku. 730 days is the maximum allowed for all other Skus.')
+param logAnalyticsRetentionInDays int = 60
 
 @description('Specifies whether creating the Azure Key Vault resource or not.')
 param keyVaultEnabled bool = false
@@ -57,25 +77,6 @@ param cosmosDbEnabled bool = false
 
 @description('Specifies the name of the Cosmos DB database.')
 param cosmosDbName string = '${toLower(prefix)}cosmosdb'
-
-@description('Specifies the name of the Log Analytics Workspace.')
-param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
-
-@description('Specify the pricing tier: PerGB2018 or legacy tiers (Free, Standalone, PerNode, Standard or Premium) which are not available to all customers.')
-@allowed([
-  'CapacityReservation'
-  'Free'
-  'LACluster'
-  'PerGB2018'
-  'PerNode'
-  'Premium'
-  'Standalone'
-  'Standard'
-])
-param logAnalyticsSku string = 'PerGB2018'
-
-@description('Specifies the workspace data retention in days. -1 means Unlimited retention for the Unlimited Sku. 730 days is the maximum allowed for all other Skus.')
-param logAnalyticsRetentionInDays int = 60
 
 @description('Specifies whether creating the API Management resource or not.')
 param apiManagementEnabled bool = false
@@ -203,6 +204,17 @@ param vmAdminPasswordOrKey string
 ])
 param authenticationType string = 'password'
 
+module logAnalytics '../../modules/logAnalytics.bicep' = if (logAnalyticsEnabled) {
+  name: 'logAnalytics'
+  params: {
+    name: logAnalyticsWorkspaceName
+    location: location
+    sku: logAnalyticsSku
+    retentionInDays: logAnalyticsRetentionInDays
+    tags: tags
+  }
+}
+
 module keyVault '../../modules/keyVault.bicep' = if (keyVaultEnabled) {
   name: 'keyVault'
   params: {
@@ -213,7 +225,7 @@ module keyVault '../../modules/keyVault.bicep' = if (keyVaultEnabled) {
     enabledForTemplateDeployment: keyVaultEnabledForTemplateDeployment
     enableSoftDelete: keyVaultEnableSoftDelete
     objectIds: keyVaultObjectIds
-    workspaceId: workspace.outputs.id
+    workspaceId: logAnalyticsEnabled ? logAnalytics.outputs.id : ''
     location: location
     tags: tags
   }
@@ -229,7 +241,7 @@ module storageAccount '../../modules/storageAccount.bicep' = if (storageAccountE
       'prod'
     ]
     keyVaultName: keyVault.outputs.name
-    workspaceId: workspace.outputs.id
+    workspaceId: logAnalyticsEnabled ? logAnalytics.outputs.id : ''
     location: location
     tags: tags
   }
@@ -244,17 +256,6 @@ module cosmosDb '../../modules/cosmosDb.bicep' = if (cosmosDbEnabled) {
     cosmosDbDatabaseName: '${cosmosDbName}Database'
     cosmosDbContainerName: '${cosmosDbName}ContainerName'
     publicNetworkAccess: 'Disabled'
-  }
-}
-
-module workspace '../../modules/logAnalytics.bicep' = {
-  name: 'workspace'
-  params: {
-    name: logAnalyticsWorkspaceName
-    location: location
-    sku: logAnalyticsSku
-    retentionInDays: logAnalyticsRetentionInDays
-    tags: tags
   }
 }
 
@@ -283,9 +284,9 @@ module appService '../../modules/appService.bicep' = if (appServicePlanEnabled &
     location: location
     tags: tags
     appServicePlanId: appServicePlan.outputs.id
-    runtimeName: 'python'
-    runtimeVersion: '3.11'
-    appCommandLine: 'python3 -m gunicorn main:app'
+    runtimeName: 'node'
+    runtimeVersion: '14-lts'
+    appCommandLine: ''
     scmDoBuildDuringDeployment: true
     managedIdentity: true
     allowedOrigins: appServiceAllowedOrigins
@@ -305,7 +306,7 @@ module openAi '../../modules/openAi.bicep' = if (openAiEnabled) {
     customSubDomainName: empty(openAiCustomSubDomainName) ? toLower(openAiName) : openAiCustomSubDomainName
     publicNetworkAccess: openAiPublicNetworkAccess
     deployments: openAiDeployments
-    workspaceId: workspace.outputs.id
+    workspaceId: logAnalyticsEnabled ? logAnalytics.outputs.id : ''
     location: location
     tags: tags
   }
@@ -326,7 +327,7 @@ module containerRegistry '../../modules/containerRegistry.bicep' = if (container
     name: containerRegistryName
     sku: containerRegistrySku
     adminUserEnabled: containerRegistryAdminUserEnabled
-    workspaceId: workspace.outputs.id
+    workspaceId: logAnalyticsEnabled ? logAnalytics.outputs.id : ''
     location: location
     tags: tags
   }

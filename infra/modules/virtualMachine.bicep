@@ -63,7 +63,7 @@ param dnsLabelPrefix string = toLower('${vmName}-${uniqueString(resourceGroup().
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object
+param tags object = {}
 
 // Variables
 var vmNicName = '${vmName}Nic'

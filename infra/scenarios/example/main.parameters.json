@@ -2,6 +2,15 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "logAnalyticsEnabled": {
+      "value": true
+    },
+    "logAnalyticsSku": {
+      "value": "PerGB2018"
+    },
+    "logAnalyticsRetentionInDays": {
+      "value": 30
+    },
     "keyVaultEnabled": {
       "value": true
     },
@@ -10,12 +19,6 @@
     },
     "cosmosDbEnabled": {
       "value": true
-    },
-    "logAnalyticsSku": {
-      "value": "PerGB2018"
-    },
-    "logAnalyticsRetentionInDays": {
-      "value": 30
     },
     "apiManagementEnabled": {
       "value": true
@@ -30,20 +33,7 @@
       "value": true
     },
     "openAiDeployments": {
-      "value": [
-        {
-          "name": "text-embedding-ada-002",
-          "version": "2",
-          "raiPolicyName": "",
-          "capacity": 30
-        },
-        {
-          "name": "gpt-35-turbo",
-          "version": "0613",
-          "raiPolicyName": "",
-          "capacity": 30
-        }
-      ]
+      "value": []
     },
     "openAiPublicNetworkAccess": {
       "value": "Enabled"
@@ -74,7 +64,7 @@
     },
     "tags": {
       "value": {
-        "env": "dev"
+        "scenario": "example"
       }
     }
   }

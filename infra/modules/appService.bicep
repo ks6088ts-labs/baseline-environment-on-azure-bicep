@@ -6,7 +6,7 @@ param name string
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object
+param tags object = {}
 
 // Reference Properties
 param applicationInsightsName string = ''
@@ -16,10 +16,16 @@ param managedIdentity bool = !empty(keyVaultName)
 
 // Runtime Properties
 @allowed([
-  'dotnet', 'dotnetcore', 'dotnet-isolated', 'node', 'python', 'java', 'powershell', 'custom'
+  'dotnet'
+  'dotnetcore'
+  'dotnet-isolated'
+  'node'
+  'python'
+  'java'
+  'powershell'
+  'custom'
 ])
 param runtimeName string
-param runtimeNameAndVersion string = '${runtimeName}|${runtimeVersion}'
 param runtimeVersion string
 
 // Microsoft.Web/sites Properties
@@ -33,7 +39,6 @@ param appSettings object = {}
 param clientAffinityEnabled bool = false
 param enableOryxBuild bool = contains(kind, 'linux')
 param functionAppScaleLimit int = -1
-param linuxFxVersion string = runtimeNameAndVersion
 param minimumElasticInstanceCount int = -1
 param numberOfWorkers int = -1
 param scmDoBuildDuringDeployment bool = false
@@ -49,7 +54,7 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
   properties: {
     serverFarmId: appServicePlanId
     siteConfig: {
-      linuxFxVersion: linuxFxVersion
+      linuxFxVersion: '${runtimeName}|${runtimeVersion}'
       alwaysOn: alwaysOn
       ftpsState: ftpsState
       appCommandLine: appCommandLine

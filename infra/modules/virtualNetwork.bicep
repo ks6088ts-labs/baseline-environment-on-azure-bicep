@@ -84,7 +84,7 @@ param openAiId string = ''
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object
+param tags object = {}
 
 var storageAccountEnabled = !empty(storageAccountId)
 var keyVaultEnabled = !empty(keyVaultId)

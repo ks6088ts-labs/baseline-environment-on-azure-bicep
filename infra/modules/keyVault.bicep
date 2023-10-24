@@ -35,16 +35,17 @@ param enableSoftDelete bool = true
 param objectIds array = []
 
 @description('Specifies the resource id of the Log Analytics workspace.')
-param workspaceId string
+param workspaceId string = ''
 
 @description('Specifies the location.')
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object
+param tags object = {}
 
 // Variables
-var diagnosticSettingsName = 'diagnosticSettings'
+var logAnalyticsEnabled = !empty(workspaceId)
+var diagnosticSettingsName = '${name}KeyVaultDiagnosticSettings'
 var logCategories = [
   'AuditEvent'
   'AzurePolicyEvaluationDetails'
@@ -101,7 +102,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
   }
 }
 
-resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (logAnalyticsEnabled) {
   name: diagnosticSettingsName
   scope: keyVault
   properties: {
