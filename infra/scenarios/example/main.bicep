@@ -18,6 +18,28 @@ param tags object = {
   IaC: 'Bicep'
 }
 
+@description('Specifies whether creating the Azure Log Analytics Workspace resource or not.')
+param logAnalyticsEnabled bool = false
+
+@description('Specifies the name of the Log Analytics Workspace.')
+param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
+
+@description('Specify the pricing tier: PerGB2018 or legacy tiers (Free, Standalone, PerNode, Standard or Premium) which are not available to all customers.')
+@allowed([
+  'CapacityReservation'
+  'Free'
+  'LACluster'
+  'PerGB2018'
+  'PerNode'
+  'Premium'
+  'Standalone'
+  'Standard'
+])
+param logAnalyticsSku string = 'PerGB2018'
+
+@description('Specifies the workspace data retention in days. -1 means Unlimited retention for the Unlimited Sku. 730 days is the maximum allowed for all other Skus.')
+param logAnalyticsRetentionInDays int = 60
+
 @description('Specifies whether creating the Azure Key Vault resource or not.')
 param keyVaultEnabled bool = false
 
@@ -57,28 +79,6 @@ param cosmosDbEnabled bool = false
 
 @description('Specifies the name of the Cosmos DB database.')
 param cosmosDbName string = '${toLower(prefix)}cosmosdb'
-
-@description('Specifies whether creating the Azure Log Analytics Workspace resource or not.')
-param logAnalyticsEnabled bool = false
-
-@description('Specifies the name of the Log Analytics Workspace.')
-param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
-
-@description('Specify the pricing tier: PerGB2018 or legacy tiers (Free, Standalone, PerNode, Standard or Premium) which are not available to all customers.')
-@allowed([
-  'CapacityReservation'
-  'Free'
-  'LACluster'
-  'PerGB2018'
-  'PerNode'
-  'Premium'
-  'Standalone'
-  'Standard'
-])
-param logAnalyticsSku string = 'PerGB2018'
-
-@description('Specifies the workspace data retention in days. -1 means Unlimited retention for the Unlimited Sku. 730 days is the maximum allowed for all other Skus.')
-param logAnalyticsRetentionInDays int = 60
 
 @description('Specifies whether creating the API Management resource or not.')
 param apiManagementEnabled bool = false
@@ -206,8 +206,8 @@ param vmAdminPasswordOrKey string
 ])
 param authenticationType string = 'password'
 
-module workspace '../../modules/logAnalytics.bicep' = if (logAnalyticsEnabled) {
-  name: 'workspace'
+module logAnalytics '../../modules/logAnalytics.bicep' = if (logAnalyticsEnabled) {
+  name: 'logAnalytics'
   params: {
     name: logAnalyticsWorkspaceName
     location: location
@@ -227,7 +227,7 @@ module keyVault '../../modules/keyVault.bicep' = if (keyVaultEnabled) {
     enabledForTemplateDeployment: keyVaultEnabledForTemplateDeployment
     enableSoftDelete: keyVaultEnableSoftDelete
     objectIds: keyVaultObjectIds
-    workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
+    workspaceId: logAnalyticsEnabled ? logAnalytics.outputs.id : ''
     location: location
     tags: tags
   }
@@ -243,7 +243,7 @@ module storageAccount '../../modules/storageAccount.bicep' = if (storageAccountE
       'prod'
     ]
     keyVaultName: keyVault.outputs.name
-    workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
+    workspaceId: logAnalyticsEnabled ? logAnalytics.outputs.id : ''
     location: location
     tags: tags
   }
@@ -308,7 +308,7 @@ module openAi '../../modules/openAi.bicep' = if (openAiEnabled) {
     customSubDomainName: empty(openAiCustomSubDomainName) ? toLower(openAiName) : openAiCustomSubDomainName
     publicNetworkAccess: openAiPublicNetworkAccess
     deployments: openAiDeployments
-    workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
+    workspaceId: logAnalyticsEnabled ? logAnalytics.outputs.id : ''
     location: location
     tags: tags
   }
@@ -329,7 +329,7 @@ module containerRegistry '../../modules/containerRegistry.bicep' = if (container
     name: containerRegistryName
     sku: containerRegistrySku
     adminUserEnabled: containerRegistryAdminUserEnabled
-    workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
+    workspaceId: logAnalyticsEnabled ? logAnalytics.outputs.id : ''
     location: location
     tags: tags
   }
