@@ -58,6 +58,9 @@ param cosmosDbEnabled bool = false
 @description('Specifies the name of the Cosmos DB database.')
 param cosmosDbName string = '${toLower(prefix)}cosmosdb'
 
+@description('Specifies whether creating the Azure Log Analytics Workspace resource or not.')
+param logAnalyticsEnabled bool = false
+
 @description('Specifies the name of the Log Analytics Workspace.')
 param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
 
@@ -203,6 +206,17 @@ param vmAdminPasswordOrKey string
 ])
 param authenticationType string = 'password'
 
+module workspace '../../modules/logAnalytics.bicep' = if (logAnalyticsEnabled) {
+  name: 'workspace'
+  params: {
+    name: logAnalyticsWorkspaceName
+    location: location
+    sku: logAnalyticsSku
+    retentionInDays: logAnalyticsRetentionInDays
+    tags: tags
+  }
+}
+
 module keyVault '../../modules/keyVault.bicep' = if (keyVaultEnabled) {
   name: 'keyVault'
   params: {
@@ -244,17 +258,6 @@ module cosmosDb '../../modules/cosmosDb.bicep' = if (cosmosDbEnabled) {
     cosmosDbDatabaseName: '${cosmosDbName}Database'
     cosmosDbContainerName: '${cosmosDbName}ContainerName'
     publicNetworkAccess: 'Disabled'
-  }
-}
-
-module workspace '../../modules/logAnalytics.bicep' = {
-  name: 'workspace'
-  params: {
-    name: logAnalyticsWorkspaceName
-    location: location
-    sku: logAnalyticsSku
-    retentionInDays: logAnalyticsRetentionInDays
-    tags: tags
   }
 }
 
@@ -305,7 +308,7 @@ module openAi '../../modules/openAi.bicep' = if (openAiEnabled) {
     customSubDomainName: empty(openAiCustomSubDomainName) ? toLower(openAiName) : openAiCustomSubDomainName
     publicNetworkAccess: openAiPublicNetworkAccess
     deployments: openAiDeployments
-    workspaceId: workspace.outputs.id
+    workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
     location: location
     tags: tags
   }
