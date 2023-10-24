@@ -6,22 +6,23 @@ param name string
 param createContainers bool = true
 
 @description('Specifies an array of containers to create.')
-param containerNames array
+param containerNames array = []
 
 @description('Specifies the name of a Key Vault where to store secrets.')
-param keyVaultName string
+param keyVaultName string = '${name}-kv'
 
 @description('Specifies the resource id of the Log Analytics workspace.')
-param workspaceId string
+param workspaceId string = ''
 
 @description('Specifies the location.')
 param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
-param tags object
+param tags object = {}
 
 // Variables
-var diagnosticSettingsName = 'diagnosticSettings'
+var logAnalyticsEnabled = !empty(workspaceId)
+var diagnosticSettingsName = '${name}diagnosticSettings'
 var logCategories = [
   'StorageRead'
   'StorageWrite'
@@ -63,7 +64,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource blobServiceDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (logAnalyticsEnabled) {
   name: diagnosticSettingsName
   scope: storageAccount::blobService
   properties: {

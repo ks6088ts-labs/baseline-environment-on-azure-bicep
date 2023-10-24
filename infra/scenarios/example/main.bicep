@@ -243,7 +243,7 @@ module storageAccount '../../modules/storageAccount.bicep' = if (storageAccountE
       'prod'
     ]
     keyVaultName: keyVault.outputs.name
-    workspaceId: workspace.outputs.id
+    workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
     location: location
     tags: tags
   }
