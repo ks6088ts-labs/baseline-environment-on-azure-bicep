@@ -99,6 +99,24 @@ param appServiceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(fi
 @description('')
 param appServiceAllowedOrigins array = []
 
+@description('Specifies the name of the Azure Container Apps Environment.')
+param containerAppsEnvironmentName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Environment' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Environment' : '${toLower(prefix)}-environment'
+
+@description('Specifies whether the environment only has an internal load balancer. These environments do not have a public static IP resource. They must provide infrastructureSubnetId if enabling this property')
+param internal bool = false
+
+@description('Specifies the IP range in CIDR notation assigned to the Docker bridge, network. Must not overlap with any other provided IP ranges.')
+param dockerBridgeCidr string = '10.2.0.1/16'
+
+@description('Specifies the IP range in CIDR notation that can be reserved for environment infrastructure IP addresses. Must not overlap with any other provided IP ranges.')
+param platformReservedCidr string = '10.1.0.0/16'
+
+@description('Specifies an IP address from the IP range defined by platformReservedCidr that will be reserved for the internal DNS server.')
+param platformReservedDnsIP string = '10.1.0.2'
+
+@description('Specifies whether the Azure Container Apps environment should be zone-redundant.')
+param zoneRedundant bool = true
+
 @description('Specifies whether creating the Azure OpenAi resource or not.')
 param openAiEnabled bool = false
 
@@ -294,6 +312,22 @@ module appService '../../modules/appService.bicep' = if (appServicePlanEnabled &
       AZURE_TENANT_ID: tenant().tenantId
       AZURE_SUBSCRIPTION_ID: subscription().subscriptionId
     }
+  }
+}
+
+module containerAppsEnvironment '../../modules/containerAppsEnvironment.bicep' = {
+  name: 'containerAppsEnvironment'
+  params: {
+    name: containerAppsEnvironmentName
+    location: location
+    tags: tags
+    internal: internal
+    dockerBridgeCidr: dockerBridgeCidr
+    platformReservedCidr: platformReservedCidr
+    platformReservedDnsIP: platformReservedDnsIP
+    zoneRedundant: zoneRedundant
+    workspaceName: logAnalyticsWorkspaceName
+    infrastructureSubnetId: network.outputs.infrastructureSubnetId
   }
 }
 
