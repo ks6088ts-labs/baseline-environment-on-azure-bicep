@@ -227,7 +227,7 @@ module keyVault '../../modules/keyVault.bicep' = if (keyVaultEnabled) {
     enabledForTemplateDeployment: keyVaultEnabledForTemplateDeployment
     enableSoftDelete: keyVaultEnableSoftDelete
     objectIds: keyVaultObjectIds
-    workspaceId: workspace.outputs.id
+    workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
     location: location
     tags: tags
   }
