@@ -45,7 +45,7 @@ param tags object = {}
 
 // Variables
 var logAnalyticsEnabled = !empty(workspaceId)
-var diagnosticSettingsName = '${name}diagnosticSettings'
+var diagnosticSettingsName = '${name}KeyVaultDiagnosticSettings'
 var logCategories = [
   'AuditEvent'
   'AzurePolicyEvaluationDetails'

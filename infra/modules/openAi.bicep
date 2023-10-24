@@ -36,7 +36,7 @@ param workspaceId string = ''
 
 // Variables
 var logAnalyticsEnabled = !empty(workspaceId)
-var diagnosticSettingsName = '${name}diagnosticSettings'
+var diagnosticSettingsName = '${name}OpenAiDiagnosticSettings'
 var openAiLogCategories = [
   'Audit'
   'RequestResponse'

@@ -24,7 +24,7 @@ param tags object = {}
 
 // Variables
 var logAnalyticsEnabled = !empty(workspaceId)
-var diagnosticSettingsName = 'diagnosticSettings'
+var diagnosticSettingsName = '${name}ContainerRegistryDiagnosticSettings'
 var logCategories = [
   'ContainerRegistryRepositoryEvents'
   'ContainerRegistryLoginEvents'

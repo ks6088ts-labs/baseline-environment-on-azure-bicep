@@ -22,7 +22,7 @@ param tags object = {}
 
 // Variables
 var logAnalyticsEnabled = !empty(workspaceId)
-var diagnosticSettingsName = '${name}diagnosticSettings'
+var diagnosticSettingsName = '${name}StorageAccountDiagnosticSettings'
 var logCategories = [
   'StorageRead'
   'StorageWrite'
