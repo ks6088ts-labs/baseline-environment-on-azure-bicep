@@ -284,9 +284,9 @@ module appService '../../modules/appService.bicep' = if (appServicePlanEnabled &
     location: location
     tags: tags
     appServicePlanId: appServicePlan.outputs.id
-    runtimeName: 'python'
-    runtimeVersion: '3.11'
-    appCommandLine: 'python3 -m gunicorn main:app'
+    runtimeName: 'node'
+    runtimeVersion: '14-lts'
+    appCommandLine: ''
     scmDoBuildDuringDeployment: true
     managedIdentity: true
     allowedOrigins: appServiceAllowedOrigins
