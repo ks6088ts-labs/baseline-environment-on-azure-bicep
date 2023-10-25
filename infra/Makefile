@@ -11,7 +11,7 @@ TENANT_ID ?= $(shell az account show --query tenantId --output tsv)
 
 SCENARIO ?= example
 TEMPLATE_FILE ?= scenarios/$(SCENARIO)/main.bicep
-PARAMETERS_FILE ?= scenarios/$(SCENARIO)/main.parameters.json
+PARAMETERS_FILE ?= scenarios/$(SCENARIO)/main.parameters.bicepparam
 OUT_DIR ?= ./artifacts
 OUT_FILE ?= $(SCENARIO).$(GIT_REVISION).json
 
