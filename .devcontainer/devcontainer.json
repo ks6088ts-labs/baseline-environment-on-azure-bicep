@@ -1,0 +1,23 @@
+{
+	"name": "Ubuntu",
+	"image": "mcr.microsoft.com/devcontainers/base:jammy",
+	"features": {
+		"ghcr.io/devcontainers/features/azure-cli:1": {},
+		"ghcr.io/azure/azure-dev/azd:0": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				// Common
+				"editorconfig.editorconfig",
+				"streetsidesoftware.code-spell-checker",
+				"oderwat.indent-rainbow",
+				// GitHub
+				"GitHub.copilot",
+				"GitHub.copilot-chat",
+				// Azure
+				"ms-azuretools.vscode-bicep"
+			]
+		}
+	}
+}
