@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "openAiDeployments": {
+      "value": [
+        {
+          "name": "text-embedding-ada-002",
+          "version": "2",
+          "capacity": 30
+        },
+        {
+          "name": "gpt-35-turbo",
+          "version": "0613",
+          "capacity": 30
+        }
+      ]
+    },
+    "tags": {
+      "value": {
+        "scenario": "aoai-apim"
+      }
+    }
+  }
+}
