@@ -7,6 +7,7 @@ param keyVaultEnabled = true
 param storageAccountEnabled = true
 param cosmosDbEnabled = true
 param apiManagementEnabled = true
+param appServicePlanEnabled = true
 param appServiceEnabled = true
 param openAiEnabled = true
 param openAiDeployments = [
