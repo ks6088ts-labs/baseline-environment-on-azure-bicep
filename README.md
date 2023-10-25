@@ -30,7 +30,8 @@ test                           test codes
 
 ## Scenarios
 
-| Scenario                                         | Overview                                  |
-| ------------------------------------------------ | ----------------------------------------- |
-| [example](./infra/scenarios/example/README.md)   | Example for describing how to use modules |
-| [iot-edge](./infra/scenarios/iot-edge/README.md) | IoT Edge workshop                         |
+| Scenario                                           | Overview                                         |
+| -------------------------------------------------- | ------------------------------------------------ |
+| [example](./infra/scenarios/example/README.md)     | Example for describing how to use modules        |
+| [iot-edge](./infra/scenarios/iot-edge/README.md)   | IoT Edge workshop                                |
+| [aoai-apim](./infra/scenarios/aoai-apim/README.md) | Call Azure OpenAI Service API via API Management |
