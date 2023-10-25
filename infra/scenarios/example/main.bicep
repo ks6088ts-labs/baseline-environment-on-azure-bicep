@@ -42,7 +42,7 @@ param logAnalyticsRetentionInDays int = 60
 param keyVaultEnabled bool = false
 
 @description('Specifies the name of the Key Vault resource.')
-param keyVaultName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}KeyVault' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}KeyVault' : '${toLower(prefix)}-key-vault'
+param keyVaultName string = letterCaseType == 'UpperCamelCase' ? 'kv${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}KeyVault' : letterCaseType == 'CamelCase' ? 'kv${toLower(prefix)}KeyVault' : 'kv${toLower(prefix)}-key-vault'
 
 @description('The default action of allow or deny when no other rules match. Allowed values: Allow or Deny')
 @allowed([
@@ -82,7 +82,7 @@ param cosmosDbName string = '${toLower(prefix)}cosmosdb'
 param apiManagementEnabled bool = false
 
 @description('Specifies the name of the API Management.')
-param apiManagementName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Apim' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Apim' : '${toLower(prefix)}-apim'
+param apiManagementName string = letterCaseType == 'UpperCamelCase' ? 'apim${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Apim' : letterCaseType == 'CamelCase' ? 'apim${toLower(prefix)}Apim' : 'apim${toLower(prefix)}-apim'
 
 @description('Specifies whether creating the Azure App Service Plan resource or not.')
 param appServicePlanEnabled bool = false
