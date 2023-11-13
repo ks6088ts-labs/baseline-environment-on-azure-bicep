@@ -78,6 +78,13 @@ param cosmosDbEnabled bool = false
 @description('Specifies the name of the Cosmos DB database.')
 param cosmosDbName string = '${toLower(prefix)}cosmosdb'
 
+@description('Specifies whether or not public network access is allowed for this account.')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param cosmosDbPublicNetworkAccess string = 'Enabled'
+
 @description('Specifies whether creating the API Management resource or not.')
 param apiManagementEnabled bool = false
 
@@ -136,7 +143,7 @@ param openAiIdentity object = {
 @description('Specifies an optional subdomain name used for token-based authentication.')
 param openAiCustomSubDomainName string = ''
 
-@description('Specifies whether or not public endpoint access is allowed for this account..')
+@description('Specifies whether or not public network access is allowed for this account.')
 @allowed([
   'Enabled'
   'Disabled'
@@ -273,7 +280,7 @@ module cosmosDb '../../modules/cosmosDb.bicep' = if (cosmosDbEnabled) {
     tags: tags
     cosmosDbDatabaseName: '${cosmosDbName}Database'
     cosmosDbContainerName: '${cosmosDbName}ContainerName'
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: cosmosDbPublicNetworkAccess
   }
 }
 
