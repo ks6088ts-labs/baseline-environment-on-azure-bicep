@@ -17,11 +17,13 @@ param publisherEmail string = 'noreply@microsoft.com'
 @description('The pricing tier of this API Management service')
 @allowed([
   'Basic'
+  'BasicV2'
   'Consumption'
   'Developer'
   'Isolated'
   'Premium'
   'Standard'
+  'StandardV2'
 ])
 param sku string = 'Consumption'
 

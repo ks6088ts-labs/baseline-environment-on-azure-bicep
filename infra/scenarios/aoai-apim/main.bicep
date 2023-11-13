@@ -19,6 +19,12 @@ param tags object = {}
 @description('Specifies the name of the API Management.')
 param apiManagementName string = letterCaseType == 'UpperCamelCase' ? 'apim${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Apim' : letterCaseType == 'CamelCase' ? 'apim${toLower(prefix)}Apim' : 'apim${toLower(prefix)}-apim'
 
+@description('Specifies the location of the API Management.')
+param apiManagementLocation string
+
+@description('Specifies the resource model definition representing SKU.')
+param apiManagementSku string
+
 @description('Specifies the name of the Azure OpenAI resource.')
 param openAiName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}OpenAi' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}OpenAi' : '${toLower(prefix)}-openai'
 
@@ -34,8 +40,9 @@ module apim '../../modules/apiManagement.bicep' = {
   name: 'apiManagement'
   params: {
     name: apiManagementName
-    location: location
+    location: apiManagementLocation
     tags: tags
+    sku: apiManagementSku
   }
 }
 
