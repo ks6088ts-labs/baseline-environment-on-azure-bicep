@@ -78,6 +78,13 @@ param cosmosDbEnabled bool = false
 @description('Specifies the name of the Cosmos DB database.')
 param cosmosDbName string = '${toLower(prefix)}cosmosdb'
 
+@description('Specifies whether or not public network access is allowed for this account.')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param cosmosDbPublicNetworkAccess string = 'Enabled'
+
 @description('Specifies whether creating the API Management resource or not.')
 param apiManagementEnabled bool = false
 
@@ -136,7 +143,7 @@ param openAiIdentity object = {
 @description('Specifies an optional subdomain name used for token-based authentication.')
 param openAiCustomSubDomainName string = ''
 
-@description('Specifies whether or not public endpoint access is allowed for this account..')
+@description('Specifies whether or not public network access is allowed for this account.')
 @allowed([
   'Enabled'
   'Disabled'
@@ -153,6 +160,13 @@ param cognitiveSearchEnabled bool = false
 @minLength(5)
 @maxLength(60)
 param cognitiveSearchName string = '${toLower(prefix)}-search'
+
+@description('Specifies whether or not public network access is allowed for this account.')
+@allowed([
+  'enabled'
+  'disabled'
+])
+param cognitiveSearchPublicNetworkAccess string = 'enabled'
 
 @description('Specifies whether creating the Azure Container Registry resource or not.')
 param containerRegistryEnabled bool = false
@@ -273,7 +287,7 @@ module cosmosDb '../../modules/cosmosDb.bicep' = if (cosmosDbEnabled) {
     tags: tags
     cosmosDbDatabaseName: '${cosmosDbName}Database'
     cosmosDbContainerName: '${cosmosDbName}ContainerName'
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: cosmosDbPublicNetworkAccess
   }
 }
 
@@ -352,6 +366,7 @@ module cognitiveSearch '../../modules/cognitiveSearch.bicep' = if (cognitiveSear
     name: cognitiveSearchName
     location: location
     tags: tags
+    publicNetworkAccess: cognitiveSearchPublicNetworkAccess
   }
 }
 

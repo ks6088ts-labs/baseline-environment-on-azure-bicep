@@ -23,6 +23,9 @@ param sku string = 'basic'
 @description('Authentication options for how the data plane API of a search service authenticates requests.')
 param authOptions object = {}
 
+@allowed([ 'enabled', 'disabled' ])
+param publicNetworkAccess string
+
 resource search 'Microsoft.Search/searchServices@2022-09-01' = {
   name: name
   location: location
@@ -41,7 +44,7 @@ resource search 'Microsoft.Search/searchServices@2022-09-01' = {
       ipRules: []
     }
     partitionCount: 1
-    publicNetworkAccess: 'enabled'
+    publicNetworkAccess: publicNetworkAccess
     replicaCount: 1
   }
   sku: {

@@ -6,6 +6,7 @@ param logAnalyticsRetentionInDays = 30
 param keyVaultEnabled = true
 param storageAccountEnabled = true
 param cosmosDbEnabled = true
+param cosmosDbPublicNetworkAccess = 'Enabled'
 param apiManagementEnabled = true
 param appServicePlanEnabled = true
 param appServiceEnabled = true
@@ -24,6 +25,7 @@ param openAiDeployments = [
 ]
 param openAiPublicNetworkAccess = 'Enabled'
 param cognitiveSearchEnabled = true
+param cognitiveSearchPublicNetworkAccess = 'enabled'
 param containerRegistryEnabled = true
 param iotHubEnabled = true
 param virtualMachineEnabled = true
