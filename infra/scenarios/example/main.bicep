@@ -161,6 +161,13 @@ param cognitiveSearchEnabled bool = false
 @maxLength(60)
 param cognitiveSearchName string = '${toLower(prefix)}-search'
 
+@description('Specifies whether or not public network access is allowed for this account.')
+@allowed([
+  'enabled'
+  'disabled'
+])
+param cognitiveSearchPublicNetworkAccess string = 'enabled'
+
 @description('Specifies whether creating the Azure Container Registry resource or not.')
 param containerRegistryEnabled bool = false
 
@@ -359,6 +366,7 @@ module cognitiveSearch '../../modules/cognitiveSearch.bicep' = if (cognitiveSear
     name: cognitiveSearchName
     location: location
     tags: tags
+    publicNetworkAccess: cognitiveSearchPublicNetworkAccess
   }
 }
 

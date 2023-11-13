@@ -25,6 +25,7 @@ param openAiDeployments = [
 ]
 param openAiPublicNetworkAccess = 'Enabled'
 param cognitiveSearchEnabled = true
+param cognitiveSearchPublicNetworkAccess = 'enabled'
 param containerRegistryEnabled = true
 param iotHubEnabled = true
 param virtualMachineEnabled = true
