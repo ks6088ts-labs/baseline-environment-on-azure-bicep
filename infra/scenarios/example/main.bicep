@@ -236,6 +236,12 @@ param vmAdminPasswordOrKey string
 ])
 param authenticationType string = 'password'
 
+@description('Specifies whether creating the Azure Kubernetes Service resource or not.')
+param aksClusterEnabled bool = false
+
+@description('Specifies the name of the Azure Kubernetes Service resource.')
+param aksClusterName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Aks' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Aks' : '${toLower(prefix)}-aks'
+
 module logAnalytics '../../modules/logAnalytics.bicep' = if (logAnalyticsEnabled) {
   name: 'logAnalytics'
   params: {
@@ -417,6 +423,36 @@ module virtualMachine '../../modules/virtualMachine.bicep' = if (virtualMachineE
     vmAdminUsername: vmAdminUsername
     authenticationType: authenticationType
     managedIdentityName: letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}AzureMonitorAgentManagedIdentity' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}AzureMonitorAgentManagedIdentity' : '${toLower(prefix)}-azure-monitor-agent-managed-identity'
+    location: location
+    tags: tags
+  }
+}
+
+resource sshKeyGenScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'sshKeyGenScript-${uniqueString(resourceGroup().id)}'
+  location: location
+  kind: 'AzureCLI'
+  properties: {
+    azCliVersion: '2.51.0'
+    timeout: 'PT15M'
+    cleanupPreference: 'Always'
+    retentionInterval: 'PT1H'
+    scriptContent: '''
+      ssh-keygen -f aksCluster -t rsa -C azureuser
+      privateKey=$(cat aksCluster)
+      publicKey=$(cat 'aksCluster.pub')
+      json="{\"keyInfo\":{\"privateKey\":\"$privateKey\",\"publicKeys\":[{\"keyData\":\"$publicKey\"}]}}"
+      echo "$json" > $AZ_SCRIPTS_OUTPUT_PATH
+    '''
+  }
+}
+
+module aksCluster '../../modules/aksCluster.bicep' = if (aksClusterEnabled) {
+  name: 'aksCluster'
+  params: {
+    name: aksClusterName
+    // workaround: https://github.com/Azure/bicep-types-az/issues/1523
+    publicKeys: sshKeyGenScript.properties.outputs.keyInfo.publicKeys
     location: location
     tags: tags
   }
