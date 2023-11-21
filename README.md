@@ -1,4 +1,4 @@
-[![test](https://github.com/ks6088ts-labs/baseline-environment-on-azure-bicep/workflows/test/badge.svg)](https://github.com/ks6088ts-labs/baseline-environment-on-azure-bicep/actions/workflows/test.yml)
+[![test](https://github.com/ks6088ts-labs/baseline-environment-on-azure-bicep/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/ks6088ts-labs/baseline-environment-on-azure-bicep/actions/workflows/test.yml?query=branch%3Amain)
 
 # baseline-environment-on-azure-bicep
 
