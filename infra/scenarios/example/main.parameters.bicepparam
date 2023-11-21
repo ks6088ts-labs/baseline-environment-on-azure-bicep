@@ -10,6 +10,7 @@ param cosmosDbPublicNetworkAccess = 'Enabled'
 param apiManagementEnabled = true
 param appServicePlanEnabled = true
 param appServiceEnabled = true
+param containerAppsEnvironmentEnabled = true
 param openAiEnabled = true
 param openAiDeployments = [
   {
