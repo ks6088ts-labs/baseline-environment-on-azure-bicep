@@ -106,6 +106,9 @@ param appServiceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(fi
 @description('')
 param appServiceAllowedOrigins array = []
 
+@description('Specifies whether creating the Azure Container Apps Environment resource or not.')
+param containerAppsEnvironmentEnabled bool = false
+
 @description('Specifies the name of the Azure Container Apps Environment.')
 param containerAppsEnvironmentName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Environment' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Environment' : '${toLower(prefix)}-environment'
 
@@ -236,6 +239,12 @@ param vmAdminPasswordOrKey string
 ])
 param authenticationType string = 'password'
 
+@description('Specifies whether creating the Azure Kubernetes Service resource or not.')
+param aksClusterEnabled bool = false
+
+@description('Specifies the name of the Azure Kubernetes Service resource.')
+param aksClusterName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Aks' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Aks' : '${toLower(prefix)}-aks'
+
 module logAnalytics '../../modules/logAnalytics.bicep' = if (logAnalyticsEnabled) {
   name: 'logAnalytics'
   params: {
@@ -272,7 +281,7 @@ module storageAccount '../../modules/storageAccount.bicep' = if (storageAccountE
       'dev'
       'prod'
     ]
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: keyVaultEnabled ? keyVault.outputs.name : ''
     workspaceId: logAnalyticsEnabled ? logAnalytics.outputs.id : ''
     location: location
     tags: tags
@@ -309,13 +318,13 @@ module appServicePlan '../../modules/appServicePlan.bicep' = if (appServicePlanE
   }
 }
 
-module appService '../../modules/appService.bicep' = if (appServicePlanEnabled && appServiceEnabled) {
+module appService '../../modules/appService.bicep' = if (appServiceEnabled) {
   name: 'appService'
   params: {
     name: appServiceName
     location: location
     tags: tags
-    appServicePlanId: appServicePlan.outputs.id
+    appServicePlanId: appServicePlanEnabled ? appServicePlan.outputs.id : ''
     runtimeName: 'node'
     runtimeVersion: '14-lts'
     appCommandLine: ''
@@ -329,7 +338,7 @@ module appService '../../modules/appService.bicep' = if (appServicePlanEnabled &
   }
 }
 
-module containerAppsEnvironment '../../modules/containerAppsEnvironment.bicep' = {
+module containerAppsEnvironment '../../modules/containerAppsEnvironment.bicep' = if (containerAppsEnvironmentEnabled) {
   name: 'containerAppsEnvironment'
   params: {
     name: containerAppsEnvironmentName
@@ -341,7 +350,7 @@ module containerAppsEnvironment '../../modules/containerAppsEnvironment.bicep' =
     platformReservedDnsIP: platformReservedDnsIP
     zoneRedundant: zoneRedundant
     workspaceName: logAnalyticsWorkspaceName
-    infrastructureSubnetId: network.outputs.infrastructureSubnetId
+    infrastructureSubnetId: virtualNetworkEnabled ? network.outputs.infrastructureSubnetId : ''
   }
 }
 
@@ -412,11 +421,20 @@ module network '../../modules/virtualNetwork.bicep' = if (virtualNetworkEnabled)
 module virtualMachine '../../modules/virtualMachine.bicep' = if (virtualMachineEnabled) {
   name: 'virtualMachine'
   params: {
-    vmSubnetId: network.outputs.vmSubnetId
+    vmSubnetId: virtualNetworkEnabled ? network.outputs.vmSubnetId : ''
     vmAdminPasswordOrKey: vmAdminPasswordOrKey
     vmAdminUsername: vmAdminUsername
     authenticationType: authenticationType
     managedIdentityName: letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}AzureMonitorAgentManagedIdentity' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}AzureMonitorAgentManagedIdentity' : '${toLower(prefix)}-azure-monitor-agent-managed-identity'
+    location: location
+    tags: tags
+  }
+}
+
+module aksCluster '../../modules/aksCluster.bicep' = if (aksClusterEnabled) {
+  name: 'aksCluster'
+  params: {
+    name: aksClusterName
     location: location
     tags: tags
   }

@@ -10,6 +10,7 @@ param cosmosDbPublicNetworkAccess = 'Enabled'
 param apiManagementEnabled = true
 param appServicePlanEnabled = true
 param appServiceEnabled = true
+param containerAppsEnvironmentEnabled = true
 param openAiEnabled = true
 param openAiDeployments = [
   {
@@ -33,6 +34,7 @@ param virtualNetworkEnabled = true
 param authenticationType = 'sshPublicKey'
 param vmAdminUsername = 'azadmin'
 param vmAdminPasswordOrKey = '<ssh-public-key>'
+param aksClusterEnabled = true
 param tags = {
   scenario: 'example'
 }

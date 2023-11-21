@@ -24,6 +24,7 @@ jobs:
       - name: Azure CLI script file
         uses: azure/CLI@v1
         with:
+          azcliversion: 2.51.0
           inlineScript: |
             cd infra
             make ci-test RESOURCE_GROUP_NAME=${{ secrets.AZURE_RG }}
