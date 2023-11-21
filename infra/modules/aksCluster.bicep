@@ -27,10 +27,27 @@ param agentVMSize string = 'Standard_B2ls_v2'
 @description('User name for the Linux Virtual Machines.')
 param linuxAdminUsername string = 'azureuser'
 
-@description('Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example \'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm\'')
-param publicKeys array
+// workaround: https://github.com/Azure/bicep-types-az/issues/1523
+resource sshKeyGenScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
+  name: 'sshKeyGenScript-${uniqueString(resourceGroup().id)}'
+  location: location
+  kind: 'AzureCLI'
+  properties: {
+    azCliVersion: '2.51.0'
+    timeout: 'PT15M'
+    cleanupPreference: 'Always'
+    retentionInterval: 'PT1H'
+    scriptContent: '''
+      ssh-keygen -f aksCluster -t rsa -C azureuser
+      privateKey=$(cat aksCluster)
+      publicKey=$(cat 'aksCluster.pub')
+      json="{\"keyInfo\":{\"privateKey\":\"$privateKey\",\"publicKeys\":[{\"keyData\":\"$publicKey\"}]}}"
+      echo "$json" > $AZ_SCRIPTS_OUTPUT_PATH
+    '''
+  }
+}
 
-resource aks 'Microsoft.ContainerService/managedClusters@2022-05-02-preview' = {
+resource aks 'Microsoft.ContainerService/managedClusters@2023-09-02-preview' = {
   name: name
   location: location
   tags: tags
@@ -65,7 +82,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2022-05-02-preview' = {
     linuxProfile: {
       adminUsername: linuxAdminUsername
       ssh: {
-        publicKeys: publicKeys
+        publicKeys: sshKeyGenScript.properties.outputs.keyInfo.publicKeys
       }
     }
   }

@@ -431,31 +431,10 @@ module virtualMachine '../../modules/virtualMachine.bicep' = if (virtualMachineE
   }
 }
 
-resource sshKeyGenScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'sshKeyGenScript-${uniqueString(resourceGroup().id)}'
-  location: location
-  kind: 'AzureCLI'
-  properties: {
-    azCliVersion: '2.51.0'
-    timeout: 'PT15M'
-    cleanupPreference: 'Always'
-    retentionInterval: 'PT1H'
-    scriptContent: '''
-      ssh-keygen -f aksCluster -t rsa -C azureuser
-      privateKey=$(cat aksCluster)
-      publicKey=$(cat 'aksCluster.pub')
-      json="{\"keyInfo\":{\"privateKey\":\"$privateKey\",\"publicKeys\":[{\"keyData\":\"$publicKey\"}]}}"
-      echo "$json" > $AZ_SCRIPTS_OUTPUT_PATH
-    '''
-  }
-}
-
 module aksCluster '../../modules/aksCluster.bicep' = if (aksClusterEnabled) {
   name: 'aksCluster'
   params: {
     name: aksClusterName
-    // workaround: https://github.com/Azure/bicep-types-az/issues/1523
-    publicKeys: sshKeyGenScript.properties.outputs.keyInfo.publicKeys
     location: location
     tags: tags
   }
