@@ -104,6 +104,11 @@
           "timeToLiveSecs": 7200
         }
       }
+    },
+    "filtermodule": {
+      "properties.desired":{
+          "TemperatureThreshold":25
+      }
     }
   }
 }

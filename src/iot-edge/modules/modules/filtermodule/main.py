@@ -6,8 +6,13 @@ import asyncio
 import sys
 import signal
 import threading
+import json
 from azure.iot.device.aio import IoTHubModuleClient
 
+# global counters
+TEMPERATURE_THRESHOLD = 25
+TWIN_CALLBACKS = 0
+RECEIVED_MESSAGES = 0
 
 # Event indicating client stop
 stop_event = threading.Event()
@@ -18,19 +23,39 @@ def create_client():
 
     # Define function for handling received messages
     async def receive_message_handler(message):
-        # NOTE: This function only handles messages sent to "input1".
-        # Messages sent to other inputs, or to the default, will be discarded
+        global RECEIVED_MESSAGES
+        print("Message received")
+        size = len(message.data)
+        message_text = message.data.decode('utf-8')
+        print("    Data: <<<{data}>>> & Size={size}".format(data=message.data, size=size))
+        print("    Properties: {}".format(message.custom_properties))
+        RECEIVED_MESSAGES += 1
+        print("Total messages received: {}".format(RECEIVED_MESSAGES))
+
         if message.input_name == "input1":
-            print("the data in the message received on input1 was ")
-            print(message.data)
-            print("custom properties are")
-            print(message.custom_properties)
-            print("forwarding mesage to output1")
-            await client.send_message_to_output(message, "output1")
+            message_json = json.loads(message_text)
+            if "machine" in message_json and "temperature" in message_json["machine"] and message_json["machine"]["temperature"] > TEMPERATURE_THRESHOLD:
+                message.custom_properties["MessageType"] = "Alert"
+                print("ALERT: Machine temperature {temp} exceeds threshold {threshold}".format(
+                    temp=message_json["machine"]["temperature"], threshold=TEMPERATURE_THRESHOLD
+                ))
+                await client.send_message_to_output(message, "output1")
+
+    # Define function for handling received twin patches
+    async def receive_twin_patch_handler(twin_patch):
+        global TEMPERATURE_THRESHOLD
+        global TWIN_CALLBACKS
+        print("Twin Patch received")
+        print("     {}".format(twin_patch))
+        if "TemperatureThreshold" in twin_patch:
+            TEMPERATURE_THRESHOLD = twin_patch["TemperatureThreshold"]
+        TWIN_CALLBACKS += 1
+        print("Total calls confirmed: {}".format(TWIN_CALLBACKS))
 
     try:
         # Set handler on the client
         client.on_message_received = receive_message_handler
+        client.on_twin_desired_properties_patch_received = receive_twin_patch_handler
     except:
         # Cleanup if failure occurs
         client.shutdown()
