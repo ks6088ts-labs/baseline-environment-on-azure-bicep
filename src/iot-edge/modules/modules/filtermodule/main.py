@@ -2,23 +2,26 @@
 # Licensed under the MIT license. See LICENSE file in the project root for
 # full license information.
 
+import os
 import asyncio
 import sys
 import signal
 import threading
 import json
+import time
 from azure.iot.device.aio import IoTHubModuleClient
 
 # global counters
 TEMPERATURE_THRESHOLD = 25
 TWIN_CALLBACKS = 0
 RECEIVED_MESSAGES = 0
+LOCAL_DEBUG = os.getenv("LOCAL_DEBUG", "false").lower() == "true"
 
 # Event indicating client stop
 stop_event = threading.Event()
 
 
-def create_client():
+def _create_client():
     client = IoTHubModuleClient.create_from_edge_environment()
 
     # Define function for handling received messages
@@ -71,9 +74,28 @@ async def run_sample(client):
         await asyncio.sleep(1000)
 
 
+def create_client():
+    # FIXME: This is just a workaround for local debugging
+    if LOCAL_DEBUG:
+        return ""
+    return _create_client()
+
+
+async def run_task(name:str, client:IoTHubModuleClient):
+    while True:
+        if LOCAL_DEBUG:
+            print(f"{time.time_ns()}: {name}: get frame from camera -> inference -> send to edge")
+        else:
+            # Send message to edge when needed as below
+            print("sending message")
+            await client.send_message(time.time_ns())
+        await asyncio.sleep(5)
+
+
 def main():
-    if not sys.version >= "3.5.3":
-        raise Exception( "The sample requires python 3.5.3+. Current version of Python: %s" % sys.version )
+    major, minor, micro = sys.version_info[:3]
+    if not (major >= 3 and (minor > 5 or (minor == 5 and micro >= 3))):
+        raise Exception(f"The sample requires python 3.5.3+. Current version of Python: {major}.{minor}.{micro}")
     print ( "IoT Hub Client for Python" )
 
     # NOTE: Client is implicitly connected due to the handler being set on it
@@ -89,8 +111,16 @@ def main():
 
     # Run the sample
     loop = asyncio.get_event_loop()
+
+    # Run multiple tasks
+    # https://stackoverflow.com/a/53420574
+    tasks = [
+        loop.create_task(run_task(name="dosomething", client=client)),
+        loop.create_task(run_sample(client)),
+    ]
+
     try:
-        loop.run_until_complete(run_sample(client))
+        loop.run_until_complete(asyncio.wait(tasks))
     except Exception as e:
         print("Unexpected error %s " % e)
         raise
