@@ -4,6 +4,20 @@ Follow the instructions below to develop IoT Edge modules.
 
 - [Tutorial: Develop IoT Edge modules using Visual Studio Code](https://learn.microsoft.com/en-us/azure/iot-edge/tutorial-develop-for-linux?view=iotedge-1.4&tabs=python&pivots=iotedge-dev-ext)
 
+To run the sample IoT Edge modules locally, run the following commands.
+
+```shell
+# setup virtual environment
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# run the sample IoT Edge modules locally
+LOCAL_DEBUG=true python main.py
+```
+
+### Monitor and diagnose
+
 ```shell
 DEPLOYMENT_GROUP_NAME="iotHub"
 RESOURCE_GROUP_NAME="rg-iot-edge-1128"
