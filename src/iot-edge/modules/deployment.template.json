@@ -3,7 +3,7 @@
   "modulesContent": {
     "$edgeAgent": {
       "properties.desired": {
-        "schemaVersion": "1.4",
+        "schemaVersion": "1.1",
         "runtime": {
           "type": "docker",
           "settings": {
@@ -82,7 +82,7 @@
     },
     "$edgeHub": {
       "properties.desired": {
-        "schemaVersion": "1.4",
+        "schemaVersion": "1.2",
         "routes": {
           "filtermoduleToIoTHub": "FROM /messages/modules/filtermodule/outputs/* INTO $upstream",
           "sensorTofiltermodule": "FROM /messages/modules/SimulatedTemperatureSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/filtermodule/inputs/input1\")"
