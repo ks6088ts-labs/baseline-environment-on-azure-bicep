@@ -1,12 +1,28 @@
+## Send telemetry to IoT Hub
+
+To understand how to send telemetry to IoT Hub, follow the instructions below.
+
+- [Quickstart: Send telemetry from an IoT Plug and Play device to Azure IoT Hub](https://learn.microsoft.com/en-us/azure/iot-develop/quickstart-send-telemetry-iot-hub?pivots=programming-language-python)
+
+Following tools are helpful to monitor IoT Hub built-in event endpoint.
+
+- [Azure IoT Hub extension for Visual Studio Code](https://github.com/microsoft/vscode-azure-iot-toolkit/wiki/Monitor-IoT-Hub-Built-in-Event-Endpoint)
+- [ServiceBusExplorer](https://github.com/paolosalvatori/ServiceBusExplorer) NOTE: Windows only
+
 ## Develop IoT Edge modules
 
 Follow the instructions below to develop IoT Edge modules.
 
 - [Tutorial: Develop IoT Edge modules using Visual Studio Code](https://learn.microsoft.com/en-us/azure/iot-edge/tutorial-develop-for-linux?view=iotedge-1.4&tabs=python&pivots=iotedge-dev-ext)
 
+### Local development environment
+
 To run the sample IoT Edge modules locally, run the following commands.
 
 ```shell
+# go to a sample IoT Edge module directory
+cd modules/modules/filtermodule
+
 # setup virtual environment
 python -m venv .venv
 source .venv/bin/activate
@@ -16,7 +32,7 @@ pip install -r requirements.txt
 LOCAL_DEBUG=true python main.py
 ```
 
-### Monitor and diagnose
+## Monitor and diagnose
 
 ```shell
 DEPLOYMENT_GROUP_NAME="iotHub"
