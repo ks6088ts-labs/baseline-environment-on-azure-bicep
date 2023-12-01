@@ -23,6 +23,11 @@ param openAiDeployments = [
     version: '0613'
     capacity: 30
   }
+  {
+    name: 'gpt-35-turbo-16k'
+    version: '0613'
+    capacity: 30
+  }
 ]
 param openAiPublicNetworkAccess = 'Enabled'
 param cognitiveSearchEnabled = true
