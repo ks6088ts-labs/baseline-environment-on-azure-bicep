@@ -23,8 +23,44 @@ param openAiDeployments = [
     version: '0613'
     capacity: 30
   }
+  {
+    name: 'gpt-35-turbo-16k'
+    version: '0613'
+    capacity: 30
+  }
+  {
+    name: 'babbage-002'
+    version: '1'
+    capacity: 30
+  }
+  {
+    name: 'dall-e-3'
+    version: '3.0'
+    capacity: 1
+  }
+  {
+    name: 'davinci-002'
+    version: '1'
+    capacity: 30
+  }
+  {
+    name: 'gpt-35-turbo-instruct'
+    version: '0914'
+    capacity: 30
+  }
+  {
+    name: 'gpt-4'
+    version: '1106-Preview'
+    capacity: 30
+  }
+  {
+    name: 'gpt-4-32k'
+    version: '0613'
+    capacity: 30
+  }
 ]
 param openAiPublicNetworkAccess = 'Enabled'
+param openAiLocation = 'swedencentral'
 param cognitiveSearchEnabled = true
 param cognitiveSearchPublicNetworkAccess = 'enabled'
 param containerRegistryEnabled = true

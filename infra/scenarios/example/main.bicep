@@ -156,6 +156,9 @@ param openAiPublicNetworkAccess string = 'Enabled'
 @description('Specifies the OpenAI deployments to create.')
 param openAiDeployments array = []
 
+@description('Specifies the location of the Azure OpenAI resource.')
+param openAiLocation string = 'japaneast'
+
 @description('Specifies whether creating the Azure Cognitive Search resource or not.')
 param cognitiveSearchEnabled bool = false
 
@@ -364,7 +367,7 @@ module openAi '../../modules/openAi.bicep' = if (openAiEnabled) {
     publicNetworkAccess: openAiPublicNetworkAccess
     deployments: openAiDeployments
     workspaceId: logAnalyticsEnabled ? logAnalytics.outputs.id : ''
-    location: location
+    location: openAiLocation
     tags: tags
   }
 }
