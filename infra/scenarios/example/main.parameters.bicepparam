@@ -30,6 +30,7 @@ param openAiDeployments = [
   }
 ]
 param openAiPublicNetworkAccess = 'Enabled'
+param openAiLocation = 'swedencentral'
 param cognitiveSearchEnabled = true
 param cognitiveSearchPublicNetworkAccess = 'enabled'
 param containerRegistryEnabled = true
