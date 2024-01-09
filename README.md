@@ -30,8 +30,10 @@ test                           test codes
 
 ## Scenarios
 
-| Scenario                                           | Overview                                         |
-| -------------------------------------------------- | ------------------------------------------------ |
-| [example](./infra/scenarios/example/README.md)     | Example for describing how to use modules        |
-| [iot-edge](./infra/scenarios/iot-edge/README.md)   | IoT Edge workshop                                |
-| [aoai-apim](./infra/scenarios/aoai-apim/README.md) | Call Azure OpenAI Service API via API Management |
+| Scenario                                                                     | Overview                                                |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------- |
+| [example](./infra/scenarios/example/README.md)                               | Example for describing how to use modules               |
+| [iot-edge](./infra/scenarios/iot-edge/README.md)                             | IoT Edge workshop                                       |
+| [aoai](./infra/scenarios/aoai/README.md)                                     | Azure OpenAI Playground using public registry for Bicep |
+| [aoai-apim](./infra/scenarios/aoai-apim/README.md)                           | Call Azure OpenAI Service API via API Management        |
+| [bicep-private-registry](./infra/scenarios/bicep-private-registry/README.md) | Hands on private registry for Bicep                     |
