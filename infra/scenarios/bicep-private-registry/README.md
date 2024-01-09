@@ -37,3 +37,16 @@ az bicep publish \
     --file ./modules/containerRegistry.bicep \
     --target br:$CONTAINER_REGISTRY_NAME.azurecr.io/bicep/modules/containerregistry:v1
 ```
+
+## Publish Azure resources using Bicep modules from the private registry
+
+```shell
+cd infra
+
+CONTAINER_REGISTRY_NAME=YourContainerRegistryName
+RESOURCE_GROUP_NAME=YourResourceGroupName
+
+az deployment group create \
+    --resource-group $RESOURCE_GROUP_NAME \
+    --template-file ./scenarios/bicep-private-registry/client.bicep
+```
