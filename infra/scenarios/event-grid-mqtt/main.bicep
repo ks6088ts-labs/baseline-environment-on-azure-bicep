@@ -20,6 +20,15 @@ param eventHubNamespaceName string = '${prefix}ehn'
 @description('Specifies the name of the Event Hub.')
 param eventHubName string = '${prefix}eh'
 
+@description('Specifies the name of the Event Grid Client.')
+param eventGridClientThumbprint1 string
+
+@description('Specifies the name of the Event Grid Client.')
+param eventGridClientThumbprint2 string
+
+@description('Specifies the name of the Event Grid Namespace Topic Space.')
+param eventGridNamesapceTopicSpaceName string = 'ContosoTopicSpace'
+
 resource eventGridNamesapce 'Microsoft.EventGrid/namespaces@2023-12-15-preview' = {
   name: eventGridNamesapceName
   location: location
@@ -67,5 +76,86 @@ resource eventHub 'Microsoft.EventHub/namespaces/eventhubs@2023-01-01-preview' =
   properties: {
     messageRetentionInDays: 1
     partitionCount: 1
+  }
+}
+
+resource eventGridClient1 'Microsoft.EventGrid/namespaces/clients@2023-12-15-preview' = {
+  parent: eventGridNamesapce
+  name: 'client1'
+  properties: {
+    authenticationName: 'client1-authn-ID'
+    clientCertificateAuthentication: {
+      validationScheme: 'ThumbprintMatch'
+      allowedThumbprints: [
+        eventGridClientThumbprint1
+      ]
+    }
+    attributes: {
+      room: '345'
+      floor: 12
+      deviceTypes: [
+        'Fan'
+        'Light'
+      ]
+    }
+    description: 'client1 description'
+    state: 'Enabled'
+  }
+}
+
+resource eventGridClient2 'Microsoft.EventGrid/namespaces/clients@2023-12-15-preview' = {
+  parent: eventGridNamesapce
+  name: 'client2'
+  properties: {
+    authenticationName: 'client2-authn-ID'
+    clientCertificateAuthentication: {
+      validationScheme: 'ThumbprintMatch'
+      allowedThumbprints: [
+        eventGridClientThumbprint2
+      ]
+    }
+    attributes: {
+      room: '678'
+      floor: 12
+      deviceTypes: [
+        'Fan'
+        'Light'
+      ]
+    }
+    description: 'client2 description'
+    state: 'Enabled'
+  }
+}
+
+resource eventGridNamesapceTopicSpace 'Microsoft.EventGrid/namespaces/topicSpaces@2023-12-15-preview' = {
+  parent: eventGridNamesapce
+  name: eventGridNamesapceTopicSpaceName
+  properties: {
+    description: 'This is a sample topic-space for Event Grid namespace'
+    topicTemplates: [
+      'contosotopics/topic1'
+    ]
+  }
+}
+
+resource permissionBindingForPublisher 'Microsoft.EventGrid/namespaces/permissionBindings@2023-12-15-preview' = {
+  name: 'contosopublisherbinding'
+  parent: eventGridNamesapce
+  properties: {
+    clientGroupName: '$all'
+    description: 'A publisher permission binding for the namespace'
+    permission: 'publisher'
+    topicSpaceName: eventGridNamesapceTopicSpace.name
+  }
+}
+
+resource permissionBindingForSubscriber 'Microsoft.EventGrid/namespaces/permissionBindings@2023-06-01-preview' = {
+  name: 'contososubscriberbinding'
+  parent: eventGridNamesapce
+  properties: {
+    clientGroupName: '$all'
+    description: 'A subscriber permission binding for the namespace'
+    permission: 'subscriber'
+    topicSpaceName: eventGridNamesapceTopicSpace.name
   }
 }

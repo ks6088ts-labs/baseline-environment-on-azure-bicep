@@ -2,6 +2,11 @@
 
 This is a scenario for pub-sub to MQTT messages on Event Grid Namespace.
 
+## Prepare client certificate and thumbprint
+
+See [Generate sample client certificate and thumbprint](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal#generate-sample-client-certificate-and-thumbprint) to generate a sample client certificate and thumbprint.
+Then overwrite thumbprints parameters for each client defined in [main.parameters.bicepparam](./main.parameters.bicepparam).
+
 ## Deploy resources on Azure
 
 ```shell
@@ -17,11 +22,6 @@ make destroy SCENARIO=event-grid-mqtt
 ```
 
 ## FIXME: Manual steps
-
-To set up MQTT pub-sub on Event Grid Namespace, you need to manually set up the following resources on Azure portal.
-ref. [Quickstart: Publish and subscribe to MQTT messages on Event Grid Namespace with Azure portal](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal)
-
-- Create clients, topic spaces and permission bindings on Event Grid Namespace
 
 To set up MQTT routing to Event Hubs, you need to manually set up the following resources on Azure portal.
 ref. [Tutorial: Route MQTT messages to Azure Event Hubs from Azure Event Grid with the Azure portal](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-routing-to-event-hubs-portal)
