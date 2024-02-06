@@ -29,6 +29,11 @@ param eventGridClientThumbprint2 string
 @description('Specifies the name of the Event Grid Namespace Topic Space.')
 param eventGridNamesapceTopicSpaceName string = 'ContosoTopicSpace'
 
+@description('Specifies the principal ID.')
+param principalId string
+
+var eventGridDataSenderRoleDefinitionId = 'd5a91429-5739-47e2-a06b-3470a27159e7'
+
 resource eventGridNamesapce 'Microsoft.EventGrid/namespaces@2023-12-15-preview' = {
   name: eventGridNamesapceName
   location: location
@@ -41,9 +46,9 @@ resource eventGridNamesapce 'Microsoft.EventGrid/namespaces@2023-12-15-preview' 
     type: 'SystemAssigned'
   }
   properties: {
-    // Enable MQTT broker
     topicSpacesConfiguration: {
       state: 'Enabled'
+      routeTopicResourceId: eventGridTopic.id
     }
   }
 }
@@ -157,5 +162,28 @@ resource permissionBindingForSubscriber 'Microsoft.EventGrid/namespaces/permissi
     description: 'A subscriber permission binding for the namespace'
     permission: 'subscriber'
     topicSpaceName: eventGridNamesapceTopicSpace.name
+  }
+}
+
+resource eventSubscription 'Microsoft.EventGrid/eventSubscriptions@2023-12-15-preview' = {
+  name: 'contosoEventSubscription'
+  scope: eventGridTopic
+  properties: {
+    destination: {
+      endpointType: 'EventHub'
+      properties: {
+        resourceId: eventHub.id
+      }
+    }
+    eventDeliverySchema: 'CloudEventSchemaV1_0'
+  }
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(principalId, eventGridDataSenderRoleDefinitionId, eventGridTopic.id)
+  scope: eventGridTopic
+  properties: {
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', eventGridDataSenderRoleDefinitionId)
+    principalId: principalId
   }
 }
