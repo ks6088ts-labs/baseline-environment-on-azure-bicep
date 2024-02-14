@@ -57,6 +57,14 @@ param dataDiskCaching string = 'ReadWrite'
 @description('Specifies the name of the user-defined managed identity used by the Azure Monitor Agent.')
 param managedIdentityName string
 
+@description('Specifies the identity of the OpenAI resource.')
+param identity object = {
+  type: 'SystemAssigned'
+}
+
+// Variables
+var cognitiveServicesOpenAiUserRoleDefinitionId = '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
+
 @description('Specifies the location.')
 param location string = resourceGroup().location
 
@@ -102,6 +110,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2023-09-01' = {
   name: vmName
   location: location
   tags: tags
+  identity: identity
   properties: {
     hardwareProfile: {
       vmSize: vmSize
@@ -173,5 +182,15 @@ resource linuxAgent 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = 
         }
       }
     }
+  }
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(virtualMachine.id, cognitiveServicesOpenAiUserRoleDefinitionId, resourceGroup().id)
+  // TODO: narrow the scope to the virtual machine
+  scope: resourceGroup()
+  properties: {
+    principalId: virtualMachine.identity.principalId
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', cognitiveServicesOpenAiUserRoleDefinitionId)
   }
 }
