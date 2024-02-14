@@ -78,6 +78,47 @@ param dataDiskSize int = 50
 @description('Specifies the caching requirements for the data disks.')
 param dataDiskCaching string = 'ReadWrite'
 
+@description('Specifies the name of the Azure OpenAI resource.')
+param openAiName string = '${toLower(prefix)}-openai'
+
+@description('Specifies the resource model definition representing SKU.')
+param openAiSku object = {
+  name: 'S0'
+}
+
+@description('Specifies the identity of the OpenAI resource.')
+param openAiIdentity object = {
+  type: 'SystemAssigned'
+}
+
+@description('Specifies whether or not public endpoint access is allowed for this account..')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param openAiPublicNetworkAccess string = 'Disabled'
+
+@description('Specifies the OpenAI deployments to create.')
+param openAiDeployments array = [
+  {
+    name: 'text-embedding-ada-002'
+    version: '2'
+    raiPolicyName: ''
+    capacity: 1
+    scaleType: 'Standard'
+  }
+  {
+    name: 'gpt-35-turbo'
+    version: '0613'
+    raiPolicyName: ''
+    capacity: 1
+    scaleType: 'Standard'
+  }
+]
+
+@description('Specifies the name of the private link to the Azure OpenAI resource.')
+param openAiPrivateEndpointName string = 'openai-private-endpoint'
+
 // modules
 module network 'network.bicep' = {
   name: 'network'
@@ -90,6 +131,8 @@ module network 'network.bicep' = {
     bastionSubnetAddressPrefix: bastionSubnetAddressPrefix
     bastionSubnetNsgName: 'AzureBastionSubnetNsg'
     bastionHostName: bastionHostName
+    openAiPrivateEndpointName: openAiPrivateEndpointName
+    openAiId: openAi.outputs.id
     location: location
     tags: tags
   }
@@ -113,6 +156,20 @@ module jumpboxVirtualMachine 'virtualMachine.bicep' = {
     dataDiskSize: dataDiskSize
     dataDiskCaching: dataDiskCaching
     managedIdentityName: '${toLower(prefix)}-azure-monitor-agent-managed-identity'
+    location: location
+    tags: tags
+  }
+}
+
+module openAi 'openAi.bicep' = {
+  name: 'openAi'
+  params: {
+    name: openAiName
+    sku: openAiSku
+    identity: openAiIdentity
+    customSubDomainName: toLower(openAiName)
+    publicNetworkAccess: openAiPublicNetworkAccess
+    deployments: openAiDeployments
     location: location
     tags: tags
   }

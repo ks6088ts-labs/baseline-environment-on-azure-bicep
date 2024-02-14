@@ -38,6 +38,12 @@ param bastionHostEnableShareableLink bool = false
 @description('Enable/Disable Tunneling feature of the Bastion Host resource.')
 param bastionHostEnableTunneling bool = false
 
+@description('Specifies the name of the private link to the Azure OpenAI resource.')
+param openAiPrivateEndpointName string = 'OpenAiPrivateEndpoint'
+
+@description('Specifies the resource id of the Azure OpenAi.')
+param openAiId string
+
 @description('Specifies the location.')
 param location string = resourceGroup().location
 
@@ -298,6 +304,61 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2023-09-01' = {
           publicIPAddress: {
             id: bastionPublicIpAddress.id
           }
+        }
+      }
+    ]
+  }
+}
+
+resource openAiPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+  name: 'privatelink.${toLower(environment().name) == 'azureusgovernment' ? 'openai.usgovcloudapi.net' : 'openai.azure.com'}'
+  location: 'global'
+  tags: tags
+}
+
+resource openAiPrivateDnsZoneVirtualNetworkLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  parent: openAiPrivateDnsZone
+  name: 'link_to_${toLower(virtualNetworkName)}'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnet.id
+    }
+  }
+}
+
+resource openAiPrivateEndpoint 'Microsoft.Network/privateEndpoints@2022-09-01' = {
+  name: openAiPrivateEndpointName
+  location: location
+  tags: tags
+  properties: {
+    privateLinkServiceConnections: [
+      {
+        name: openAiPrivateEndpointName
+        properties: {
+          privateLinkServiceId: openAiId
+          groupIds: [
+            'account'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: '${vnet.id}/subnets/${vmSubnetName}'
+    }
+  }
+}
+
+resource openAiPrivateDnsZoneGroupName 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-09-01' = {
+  parent: openAiPrivateEndpoint
+  name: 'PrivateDnsZoneGroupName'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'dnsConfig'
+        properties: {
+          privateDnsZoneId: openAiPrivateDnsZone.id
         }
       }
     ]
