@@ -119,6 +119,16 @@ param openAiDeployments array = [
 @description('Specifies the name of the private link to the Azure OpenAI resource.')
 param openAiPrivateEndpointName string = 'openai-private-endpoint'
 
+@description('Specifies the name of the Azure Cognitive Search resource.')
+param cognitiveSearchName string = '${toLower(prefix)}-search'
+
+@description('Specifies whether or not public network access is allowed for this account.')
+@allowed([
+  'enabled'
+  'disabled'
+])
+param cognitiveSearchPublicNetworkAccess string = 'enabled'
+
 // modules
 module network 'network.bicep' = {
   name: 'network'
@@ -170,6 +180,16 @@ module openAi 'openAi.bicep' = {
     customSubDomainName: toLower(openAiName)
     publicNetworkAccess: openAiPublicNetworkAccess
     deployments: openAiDeployments
+    location: location
+    tags: tags
+  }
+}
+
+module cognitiveSearch 'cognitiveSearch.bicep' =  {
+  name: 'cognitiveSearch'
+  params: {
+    name: cognitiveSearchName
+    publicNetworkAccess: cognitiveSearchPublicNetworkAccess
     location: location
     tags: tags
   }
