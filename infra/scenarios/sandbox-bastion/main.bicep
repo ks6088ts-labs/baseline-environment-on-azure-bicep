@@ -132,6 +132,9 @@ param cognitiveSearchName string = '${toLower(prefix)}-search'
 ])
 param cognitiveSearchPublicNetworkAccess string = 'enabled'
 
+@description('Specifies the name of the private link to the Azure App Service resource.')
+param appServicePrivateEndpointName string = 'app-service-private-endpoint'
+
 @description('Specifies the name of the Azure App Service resource.')
 param appServiceName string = '${toLower(prefix)}app'
 
@@ -151,6 +154,8 @@ module network 'network.bicep' = {
     openAiId: openAi.outputs.id
     cognitiveSearchPrivateEndpointName: cognitiveSearchPrivateEndpointName
     cognitiveSearchId: cognitiveSearch.outputs.id
+    appServicePrivateEndpointName: appServicePrivateEndpointName
+    appServiceId: appService.outputs.id
     location: location
     tags: tags
   }
