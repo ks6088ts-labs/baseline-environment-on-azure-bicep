@@ -119,6 +119,25 @@ param openAiDeployments array = [
 @description('Specifies the name of the private link to the Azure OpenAI resource.')
 param openAiPrivateEndpointName string = 'openai-private-endpoint'
 
+@description('Specifies the name of the private link to the Azure Cognitive Search resource.')
+param cognitiveSearchPrivateEndpointName string = 'cognitive-search-private-endpoint'
+
+@description('Specifies the name of the Azure Cognitive Search resource.')
+param cognitiveSearchName string = '${toLower(prefix)}-search'
+
+@description('Specifies whether or not public network access is allowed for this account.')
+@allowed([
+  'enabled'
+  'disabled'
+])
+param cognitiveSearchPublicNetworkAccess string = 'enabled'
+
+@description('Specifies the name of the private link to the Azure App Service resource.')
+param appServicePrivateEndpointName string = 'app-service-private-endpoint'
+
+@description('Specifies the name of the Azure App Service resource.')
+param appServiceName string = '${toLower(prefix)}app'
+
 // modules
 module network 'network.bicep' = {
   name: 'network'
@@ -133,6 +152,10 @@ module network 'network.bicep' = {
     bastionHostName: bastionHostName
     openAiPrivateEndpointName: openAiPrivateEndpointName
     openAiId: openAi.outputs.id
+    cognitiveSearchPrivateEndpointName: cognitiveSearchPrivateEndpointName
+    cognitiveSearchId: cognitiveSearch.outputs.id
+    appServicePrivateEndpointName: appServicePrivateEndpointName
+    appServiceId: appService.outputs.id
     location: location
     tags: tags
   }
@@ -170,6 +193,25 @@ module openAi 'openAi.bicep' = {
     customSubDomainName: toLower(openAiName)
     publicNetworkAccess: openAiPublicNetworkAccess
     deployments: openAiDeployments
+    location: location
+    tags: tags
+  }
+}
+
+module cognitiveSearch 'cognitiveSearch.bicep' =  {
+  name: 'cognitiveSearch'
+  params: {
+    name: cognitiveSearchName
+    publicNetworkAccess: cognitiveSearchPublicNetworkAccess
+    location: location
+    tags: tags
+  }
+}
+
+module appService 'appService.bicep' =  {
+  name: 'appService'
+  params: {
+    name: appServiceName
     location: location
     tags: tags
   }
