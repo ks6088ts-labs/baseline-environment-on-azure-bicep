@@ -132,6 +132,9 @@ param cognitiveSearchName string = '${toLower(prefix)}-search'
 ])
 param cognitiveSearchPublicNetworkAccess string = 'enabled'
 
+@description('Specifies the name of the Azure App Service resource.')
+param appServiceName string = '${toLower(prefix)}app'
+
 // modules
 module network 'network.bicep' = {
   name: 'network'
@@ -195,6 +198,15 @@ module cognitiveSearch 'cognitiveSearch.bicep' =  {
   params: {
     name: cognitiveSearchName
     publicNetworkAccess: cognitiveSearchPublicNetworkAccess
+    location: location
+    tags: tags
+  }
+}
+
+module appService 'appService.bicep' =  {
+  name: 'appService'
+  params: {
+    name: appServiceName
     location: location
     tags: tags
   }
