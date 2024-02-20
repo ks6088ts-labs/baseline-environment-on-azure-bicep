@@ -119,6 +119,9 @@ param openAiDeployments array = [
 @description('Specifies the name of the private link to the Azure OpenAI resource.')
 param openAiPrivateEndpointName string = 'openai-private-endpoint'
 
+@description('Specifies the name of the private link to the Azure Cognitive Search resource.')
+param cognitiveSearchPrivateEndpointName string = 'cognitive-search-private-endpoint'
+
 @description('Specifies the name of the Azure Cognitive Search resource.')
 param cognitiveSearchName string = '${toLower(prefix)}-search'
 
@@ -143,6 +146,8 @@ module network 'network.bicep' = {
     bastionHostName: bastionHostName
     openAiPrivateEndpointName: openAiPrivateEndpointName
     openAiId: openAi.outputs.id
+    cognitiveSearchPrivateEndpointName: cognitiveSearchPrivateEndpointName
+    cognitiveSearchId: cognitiveSearch.outputs.id
     location: location
     tags: tags
   }

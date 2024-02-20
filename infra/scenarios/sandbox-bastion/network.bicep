@@ -44,6 +44,12 @@ param openAiPrivateEndpointName string = 'OpenAiPrivateEndpoint'
 @description('Specifies the resource id of the Azure OpenAi.')
 param openAiId string
 
+@description('Specifies the name of the private link to the Azure Cognitive Search resource.')
+param cognitiveSearchPrivateEndpointName string = 'CognitiveSearchPrivateEndpoint'
+
+@description('Specifies the resource id of the Azure Cognitive Search.')
+param cognitiveSearchId string
+
 @description('Specifies the location.')
 param location string = resourceGroup().location
 
@@ -359,6 +365,61 @@ resource openAiPrivateDnsZoneGroupName 'Microsoft.Network/privateEndpoints/priva
         name: 'dnsConfig'
         properties: {
           privateDnsZoneId: openAiPrivateDnsZone.id
+        }
+      }
+    ]
+  }
+}
+
+resource cognitiveSearchPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+  name: 'privatelink.search.windows.net'
+  location: 'global'
+  tags: tags
+}
+
+resource cognitiveSearchPrivateDnsZoneVirtualNetworkLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  parent: cognitiveSearchPrivateDnsZone
+  name: 'link_to_${toLower(virtualNetworkName)}'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnet.id
+    }
+  }
+}
+
+resource cognitiveSearchPrivateEndpoint 'Microsoft.Network/privateEndpoints@2022-09-01' = {
+  name: cognitiveSearchPrivateEndpointName
+  location: location
+  tags: tags
+  properties: {
+    privateLinkServiceConnections: [
+      {
+        name: cognitiveSearchPrivateEndpointName
+        properties: {
+          privateLinkServiceId: cognitiveSearchId
+          groupIds: [
+            'searchService'
+          ]
+        }
+      }
+    ]
+    subnet: {
+      id: '${vnet.id}/subnets/${vmSubnetName}'
+    }
+  }
+}
+
+resource cognitiveSearchPrivateDnsZoneGroupName 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-09-01' = {
+  parent: cognitiveSearchPrivateEndpoint
+  name: 'PrivateDnsZoneGroupName'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'dnsConfig'
+        properties: {
+          privateDnsZoneId: cognitiveSearchPrivateDnsZone.id
         }
       }
     ]
