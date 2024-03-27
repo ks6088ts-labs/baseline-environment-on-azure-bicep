@@ -10,6 +10,9 @@ param eventGridClientThumbprint2 = 'your-event-grid-client-thumbprint2'
 
 param principalId = 'your-principal-id'
 
+// Feature flags
+param eventHubEnabled = false
+
 param tags = {
   scenario: 'event-grid-mqtt'
 }
