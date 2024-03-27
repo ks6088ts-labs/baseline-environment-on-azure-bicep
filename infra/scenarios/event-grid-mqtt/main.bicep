@@ -14,12 +14,6 @@ param eventGridNamesapceName string = '${prefix}egn'
 @description('Specifies the name of the Event Grid Topic')
 param eventGridTopicName string = '${prefix}egt'
 
-@description('Specifies the name of the Event Hub Namespace.')
-param eventHubNamespaceName string = '${prefix}ehn'
-
-@description('Specifies the name of the Event Hub.')
-param eventHubName string = '${prefix}eh'
-
 @description('Specifies the name of the Event Grid Client.')
 param eventGridClientThumbprint1 string
 
@@ -32,6 +26,16 @@ param eventGridNamesapceTopicSpaceName string = 'ContosoTopicSpace'
 @description('Specifies the principal ID.')
 param principalId string
 
+@description('Specifies whether creating the Event Hub resource or not.')
+param eventHubEnabled bool = false
+
+@description('Specifies the name of the Event Hub Namespace.')
+param eventHubNamespaceName string = '${prefix}ehn'
+
+@description('Specifies the name of the Event Hub.')
+param eventHubName string = '${prefix}eh'
+
+// EventGrid Data Sender: https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/integration#eventgrid-data-sender
 var eventGridDataSenderRoleDefinitionId = 'd5a91429-5739-47e2-a06b-3470a27159e7'
 
 resource eventGridNamesapce 'Microsoft.EventGrid/namespaces@2023-12-15-preview' = {
@@ -62,25 +66,6 @@ resource eventGridTopic 'Microsoft.EventGrid/topics@2023-12-15-preview' = {
   }
   properties: {
     inputSchema: 'CloudEventSchemaV1_0'
-  }
-}
-
-resource eventHubNamespace 'Microsoft.EventHub/namespaces@2023-01-01-preview' = {
-  name: eventHubNamespaceName
-  location: location
-  tags: tags
-  sku: {
-    name: 'Basic'
-    tier: 'Basic'
-  }
-}
-
-resource eventHub 'Microsoft.EventHub/namespaces/eventhubs@2023-01-01-preview' = {
-  parent: eventHubNamespace
-  name: eventHubName
-  properties: {
-    messageRetentionInDays: 1
-    partitionCount: 1
   }
 }
 
@@ -149,7 +134,7 @@ resource permissionBindingForPublisher 'Microsoft.EventGrid/namespaces/permissio
   properties: {
     clientGroupName: '$all'
     description: 'A publisher permission binding for the namespace'
-    permission: 'publisher'
+    permission: 'Publisher'
     topicSpaceName: eventGridNamesapceTopicSpace.name
   }
 }
@@ -160,22 +145,8 @@ resource permissionBindingForSubscriber 'Microsoft.EventGrid/namespaces/permissi
   properties: {
     clientGroupName: '$all'
     description: 'A subscriber permission binding for the namespace'
-    permission: 'subscriber'
+    permission: 'Subscriber'
     topicSpaceName: eventGridNamesapceTopicSpace.name
-  }
-}
-
-resource eventSubscription 'Microsoft.EventGrid/eventSubscriptions@2023-12-15-preview' = {
-  name: 'contosoEventSubscription'
-  scope: eventGridTopic
-  properties: {
-    destination: {
-      endpointType: 'EventHub'
-      properties: {
-        resourceId: eventHub.id
-      }
-    }
-    eventDeliverySchema: 'CloudEventSchemaV1_0'
   }
 }
 
@@ -187,3 +158,40 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     principalId: principalId
   }
 }
+
+// EventHub
+resource eventHubNamespace 'Microsoft.EventHub/namespaces@2023-01-01-preview' =
+  if (eventHubEnabled) {
+    name: eventHubNamespaceName
+    location: location
+    tags: tags
+    sku: {
+      name: 'Basic'
+      tier: 'Basic'
+    }
+  }
+
+resource eventHub 'Microsoft.EventHub/namespaces/eventhubs@2023-01-01-preview' =
+  if (eventHubEnabled) {
+    parent: eventHubNamespace
+    name: eventHubName
+    properties: {
+      messageRetentionInDays: 1
+      partitionCount: 1
+    }
+  }
+
+resource eventSubscription 'Microsoft.EventGrid/eventSubscriptions@2023-12-15-preview' =
+  if (eventHubEnabled) {
+    name: 'contosoEventSubscription'
+    scope: eventGridTopic
+    properties: {
+      destination: {
+        endpointType: 'EventHub'
+        properties: {
+          resourceId: eventHub.id
+        }
+      }
+      eventDeliverySchema: 'CloudEventSchemaV1_0'
+    }
+  }
