@@ -8,10 +8,8 @@ param eventGridClientThumbprint1 = 'your-event-grid-client-thumbprint1'
 // $ step certificate fingerprint client2-authn-ID.pem
 param eventGridClientThumbprint2 = 'your-event-grid-client-thumbprint2'
 
-param principalId = 'your-principal-id'
-
 // Feature flags
-param eventHubEnabled = false
+param eventHubEnabled = true
 
 param tags = {
   scenario: 'event-grid-mqtt'
