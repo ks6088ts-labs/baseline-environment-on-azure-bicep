@@ -51,5 +51,11 @@ make destroy SCENARIO=event-grid-mqtt
 
 ## Reference
 
+### Azure Event Grid
+
 - [Quickstart: Publish and subscribe to MQTT messages on Event Grid Namespace with Azure portal](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal)
 - [Tutorial: Route MQTT messages to Azure Event Hubs from Azure Event Grid with the Azure portal](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-routing-to-event-hubs-portal)
+
+### Azure Functions
+
+- [infra/resources.bicep](https://github.com/pamelafox/regression-model-azure-demo/blob/main/infra/resources.bicep)
