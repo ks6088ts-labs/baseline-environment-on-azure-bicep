@@ -59,3 +59,4 @@ make destroy SCENARIO=event-grid-mqtt
 ### Azure Functions
 
 - [infra/resources.bicep](https://github.com/pamelafox/regression-model-azure-demo/blob/main/infra/resources.bicep)
+- [func templates list](https://learn.microsoft.com/en-us/azure/azure-functions/functions-core-tools-reference?tabs=v2#func-templates-list)
