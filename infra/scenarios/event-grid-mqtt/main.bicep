@@ -189,3 +189,112 @@ resource eventSubscription 'Microsoft.EventGrid/eventSubscriptions@2022-06-15' =
     eventDeliverySchema: 'CloudEventSchemaV1_0'
   }
 }
+
+// Functions
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+  name: '${prefix}-logworkspace'
+  location: location
+  tags: tags
+  properties: any({
+    retentionInDays: 30
+    features: {
+      searchVersion: 1
+    }
+    sku: {
+      name: 'PerGB2018'
+    }
+  })
+}
+
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: '${prefix}-appinsights'
+  location: location
+  tags: tags
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    WorkspaceResourceId: logAnalytics.id
+  }
+}
+
+var validStoragePrefix = take(replace(prefix, '-', ''), 17)
+var functionAppName = '${prefix}-function-app'
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-04-01' = {
+  name: '${validStoragePrefix}storage'
+  location: location
+  kind: 'StorageV2'
+  tags: tags
+  sku: {
+    name: 'Standard_LRS'
+  }
+  properties: {
+    minimumTlsVersion: 'TLS1_2'
+    allowBlobPublicAccess: false
+  }
+}
+
+resource hostingPlan 'Microsoft.Web/serverfarms@2023-12-01' = {
+  name: '${prefix}-plan'
+  location: location
+  tags: tags
+  kind: 'functionapp'
+  properties: {
+    reserved: true
+  }
+  sku: {
+    name: 'Y1'
+  }
+}
+
+resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
+  name: functionAppName
+  location: location
+  tags: union(tags, {
+    'azd-service-name': 'api'
+  })
+  kind: 'functionapp,linux'
+  properties: {
+    httpsOnly: true
+    serverFarmId: hostingPlan.id
+    clientAffinityEnabled: false
+    siteConfig: {
+      minTlsVersion: '1.2'
+      linuxFxVersion: 'Python|3.11'
+      appSettings: [
+        {
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: appInsights.properties.InstrumentationKey
+        }
+        {
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${az.environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
+        }
+        {
+          name: 'WEBSITE_CONTENTSHARE'
+          value: toLower(functionAppName)
+        }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'python'
+        }
+        {
+          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${az.environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
+        }
+        {
+          name: 'ENABLE_ORYX_BUILD'
+          value: 'true'
+        }
+        {
+          name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
+          value: 'true'
+        }
+      ]
+    }
+  }
+}
