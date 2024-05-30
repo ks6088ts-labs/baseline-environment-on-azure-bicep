@@ -218,6 +218,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 var validStoragePrefix = take(replace(prefix, '-', ''), 17)
+var functionAppName = '${prefix}-function-app'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-04-01' = {
   name: '${validStoragePrefix}storage'
@@ -247,7 +248,7 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2023-12-01' = {
 }
 
 resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
-  name: '${prefix}-function-app'
+  name: functionAppName
   location: location
   tags: union(tags, {
     'azd-service-name': 'api'
@@ -268,6 +269,10 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
         {
           name: 'AzureWebJobsStorage'
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${az.environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
+        }
+        {
+          name: 'WEBSITE_CONTENTSHARE'
+          value: toLower(functionAppName)
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
