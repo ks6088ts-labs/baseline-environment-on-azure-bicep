@@ -2,7 +2,7 @@ SOURCE_FILES ?= $(shell find . -type f -name '*.bicep' -print)
 
 # Git
 GIT_REVISION ?= $(shell git rev-parse --short HEAD)
-GIT_TAG ?= $(shell git describe --tags --abbrev=0 | sed -e s/v//g)
+GIT_TAG ?= $(shell git describe --tags --abbrev=0 --always | sed -e s/v//g)
 
 # Azure CLI
 SUBSCRIPTION_ID ?= $(shell az account show --query id --output tsv)
