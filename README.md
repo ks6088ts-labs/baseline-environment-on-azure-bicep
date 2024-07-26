@@ -1,4 +1,4 @@
-[![test](https://github.com/ks6088ts-labs/baseline-environment-on-azure-bicep/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/ks6088ts-labs/baseline-environment-on-azure-bicep/actions/workflows/test.yml?query=branch%3Amain)
+[![infra](https://github.com/ks6088ts-labs/baseline-environment-on-azure-bicep/actions/workflows/infra.yml/badge.svg?branch=main)](https://github.com/ks6088ts-labs/baseline-environment-on-azure-bicep/actions/workflows/infra.yml?query=branch%3Amain)
 
 # baseline-environment-on-azure-bicep
 
@@ -43,3 +43,12 @@ test                           test codes
 | [iot-hub-dps](./infra/scenarios/iot-hub-dps/README.md)                       | IoT Hub Device Provisioning Service                     |
 | [iot-hub-routing](./infra/scenarios/iot-hub-routing/README.md)               | IoT Hub routing                                         |
 | [sandbox-bastion](./infra/scenarios/sandbox-bastion/README.md)               | Sandbox with Bastion                                    |
+
+## Use GitHub Actions to connect to Azure
+
+1. create GitHub environment named `dev`. ref.[Managing environments for deployment](https://docs.github.com/ja/actions/administering-github-actions/managing-environments-for-deployment)
+1. run the following command to configure both Azure resources and GitHub secrets.
+
+```shell
+sh ./scripts/configure-oidc-github.sh
+```

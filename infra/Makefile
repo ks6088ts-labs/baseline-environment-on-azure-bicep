@@ -12,8 +12,6 @@ TENANT_ID ?= $(shell az account show --query tenantId --output tsv)
 SCENARIO ?= example
 TEMPLATE_FILE ?= scenarios/$(SCENARIO)/main.bicep
 PARAMETERS_FILE ?= scenarios/$(SCENARIO)/main.parameters.bicepparam
-OUT_DIR ?= ./artifacts
-OUT_FILE ?= $(SCENARIO).$(GIT_REVISION).json
 
 RESOURCE_GROUP_NAME ?= rg-$(SCENARIO)
 LOCATION ?= japaneast
@@ -45,10 +43,9 @@ lint: ## lint codes
 
 .PHONY: build
 build: ## build a bicep file
-	@mkdir -p $(OUT_DIR)
 	@az bicep build \
 		--file $(TEMPLATE_FILE) \
-		--outfile $(OUT_DIR)/$(OUT_FILE)
+		--stdout
 
 .PHONY: test
 test: ## test codes
@@ -97,19 +94,3 @@ deploy: create-resource-group deployment-what-if deployment-create ## deploy res
 
 .PHONY: destroy
 destroy: delete-resource-group ## destroy resources
-
-# Generate deployment credentials: https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-github-actions?tabs=userlevel%2CCLI#generate-deployment-credentials
-.PHONY: create-for-rbac
-create-for-rbac: ## create service principal for RBAC
-	az ad sp create-for-rbac \
-		--name test-baseline-environment-on-azure-bicep \
-		--role contributor \
-		--scopes /subscriptions/$(SUBSCRIPTION_ID)/resourceGroups/$(RESOURCE_GROUP_NAME) \
-		--sdk-auth > $(OUT_DIR)/azure-credentials.json
-
-# Configure the GitHub secrets: https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-github-actions?tabs=userlevel%2CCLI#configure-the-github-secrets
-.PHONY: configure-github-secrets
-configure-github-secrets: ## configure GitHub secrets
-	gh secret set AZURE_CREDENTIALS < $(OUT_DIR)/azure-credentials.json
-	gh secret set AZURE_SUBSCRIPTION --body $(SUBSCRIPTION_ID)
-	gh secret set AZURE_RG --body $(RESOURCE_GROUP_NAME)

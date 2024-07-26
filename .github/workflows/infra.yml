@@ -1,22 +1,33 @@
-name: test
+name: infra
 
 on:
   push:
     paths:
       - infra/**
+    branches:
+      - main
+  schedule:
+    - cron: "00 00 * * 3"
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-  test:
+  infra:
     strategy:
       matrix:
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
+    environment: dev
     steps:
       - name: Log into Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: Checkout code
         uses: actions/checkout@v4
         with:
