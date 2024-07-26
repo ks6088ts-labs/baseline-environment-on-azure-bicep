@@ -32,6 +32,9 @@ param eventHubNamespaceName string = '${prefix}ehn'
 @description('Specifies the name of the Event Hub.')
 param eventHubName string = '${prefix}eh'
 
+@description('Specifies whether to enable role assignment or not.')
+param enableRoleAssignment bool = false
+
 // EventGrid Data Sender: https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/integration#eventgrid-data-sender
 var eventGridDataSenderRoleDefinitionId = 'd5a91429-5739-47e2-a06b-3470a27159e7'
 
@@ -147,7 +150,7 @@ resource permissionBindingForSubscriber 'Microsoft.EventGrid/namespaces/permissi
   }
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (enableRoleAssignment) {
   name: guid(eventGridNamesapce.id, eventGridDataSenderRoleDefinitionId, eventGridTopic.id)
   scope: eventGridTopic
   properties: {
