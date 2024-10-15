@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eux
+
 # Use GitHub Actions to connect to Azure:
 # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Clinux
 
@@ -23,6 +25,9 @@ assigneeObjectId=$(az ad sp create --id "$appId" --query id --output tsv)
 
 # Get the tenant ID of the Azure subscription
 tenantId=$(az ad sp show --id "$appId" --query appOwnerOrganizationId --output tsv)
+
+# Create a new resource group
+az group create --name "$appName" --location japaneast
 
 # Assign the 'Contributor' role to the service principal for the subscription
 az role assignment create --role contributor \
