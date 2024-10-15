@@ -14,6 +14,7 @@ TEMPLATE_FILE ?= scenarios/$(SCENARIO)/main.bicep
 PARAMETERS_FILE ?= scenarios/$(SCENARIO)/main.parameters.bicepparam
 
 RESOURCE_GROUP_NAME ?= rg-$(SCENARIO)
+TEST_RESOURCE_GROUP_NAME ?= test-baseline-environment-on-azure-bicep
 LOCATION ?= japaneast
 
 .PHONY: help
@@ -55,7 +56,7 @@ test: ## test codes
 ci-test: ## ci test
 	@for dir in $(shell find scenarios/* -type d) ; do \
 		echo "Test: $$dir" ; \
-		make _ci-test-base SCENARIO=$$(basename $$dir) || exit 1 ; \
+		make _ci-test-base SCENARIO=$$(basename $$dir) RESOURCE_GROUP_NAME=$(TEST_RESOURCE_GROUP_NAME) || exit 1 ; \
 	done
 
 .PHONY: _ci-test-base

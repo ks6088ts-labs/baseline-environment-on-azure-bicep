@@ -38,4 +38,4 @@ jobs:
           azcliversion: 2.51.0
           inlineScript: |
             cd infra
-            make ci-test RESOURCE_GROUP_NAME=${{ secrets.AZURE_RG }}
+            make ci-test

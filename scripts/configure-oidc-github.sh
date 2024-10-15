@@ -44,7 +44,6 @@ az ad app federated-credential create \
 # Dump parameters to the console
 echo "AZURE_CLIENT_ID: $appId"
 echo "AZURE_SUBSCRIPTION_ID: $subscriptionId"
-echo "AZURE_RG: $appName"
 echo "AZURE_TENANT_ID: $tenantId"
 
 # Verify gh is installed
@@ -58,5 +57,4 @@ fi
 # Register secrets on GitHub
 gh secret set AZURE_CLIENT_ID --body $appId
 gh secret set AZURE_SUBSCRIPTION_ID --body $subscriptionId
-gh secret set AZURE_RG --body $appName
 gh secret set AZURE_TENANT_ID --body $tenantId
