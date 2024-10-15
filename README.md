@@ -34,6 +34,7 @@ test                           test codes
 
 | Scenario                                                                     | Overview                                                |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------- |
+| [ai-services](./infra/scenarios/ai-services/README.md)                       | Quick start for Azure AI Services environment           |
 | [aoai](./infra/scenarios/aoai/README.md)                                     | Azure OpenAI Playground using public registry for Bicep |
 | [aoai-apim](./infra/scenarios/aoai-apim/README.md)                           | Call Azure OpenAI Service API via API Management        |
 | [bicep-private-registry](./infra/scenarios/bicep-private-registry/README.md) | Hands on private registry for Bicep                     |
