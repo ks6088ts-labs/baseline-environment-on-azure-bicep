@@ -1,9 +1,10 @@
 {
-	"name": "Ubuntu",
-	"image": "mcr.microsoft.com/devcontainers/base:jammy",
+	"name": "baseline-environment-on-azure-bicep",
+	// https://mcr.microsoft.com/en-us/product/devcontainers/base/tags
+	"image": "mcr.microsoft.com/devcontainers/base:dev-ubuntu-24.04",
+	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		"ghcr.io/devcontainers/features/azure-cli:1": {},
-		"ghcr.io/azure/azure-dev/azd:0": {}
+		"ghcr.io/devcontainers/features/azure-cli:latest": {}
 	},
 	"customizations": {
 		"vscode": {
