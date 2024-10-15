@@ -54,6 +54,14 @@ param aiServicesPublicNetworkAccess string = 'Enabled'
 @description('Specifies the OpenAI deployments to create.')
 param openAiDeployments array = []
 
+@description('Specifies the name of the Bing Search resource.')
+param bingSearchName string = '${prefix}-bing-search'
+
+@description('Specifies the resource model definition representing SKU.')
+param bingSearchSku object = {
+  name: 'S1'
+}
+
 @description('Specifies the resource tags for all the resoources.')
 param tags object = {}
 
@@ -82,6 +90,16 @@ module aiServices '../../modules/aiServices.bicep' = {
     publicNetworkAccess: aiServicesPublicNetworkAccess
     deployments: openAiDeployments
     workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
+  }
+}
+
+module bingSearch '../../modules/bingSearch.bicep' = {
+  name: 'bingSearch'
+  params: {
+    name: bingSearchName
+    location: 'global'
+    tags: tags
+    sku: bingSearchSku
   }
 }
 
