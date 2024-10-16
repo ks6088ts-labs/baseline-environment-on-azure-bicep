@@ -20,7 +20,9 @@ param tags object = {}
 param logAnalyticsEnabled bool = false
 
 @description('Specifies the name of the Log Analytics Workspace.')
-param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
+param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase'
+  ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace'
+  : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
 
 @description('Specify the pricing tier: PerGB2018 or legacy tiers (Free, Standalone, PerNode, Standard or Premium) which are not available to all customers.')
 @allowed([
@@ -42,7 +44,9 @@ param logAnalyticsRetentionInDays int = 60
 param keyVaultEnabled bool = false
 
 @description('Specifies the name of the Key Vault resource.')
-param keyVaultName string = letterCaseType == 'UpperCamelCase' ? 'kv${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}KeyVault' : letterCaseType == 'CamelCase' ? 'kv${toLower(prefix)}KeyVault' : 'kv${toLower(prefix)}-key-vault'
+param keyVaultName string = letterCaseType == 'UpperCamelCase'
+  ? 'kv${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}KeyVault'
+  : letterCaseType == 'CamelCase' ? 'kv${toLower(prefix)}KeyVault' : 'kv${toLower(prefix)}-key-vault'
 
 @description('The default action of allow or deny when no other rules match. Allowed values: Allow or Deny')
 @allowed([
@@ -89,19 +93,25 @@ param cosmosDbPublicNetworkAccess string = 'Enabled'
 param apiManagementEnabled bool = false
 
 @description('Specifies the name of the API Management.')
-param apiManagementName string = letterCaseType == 'UpperCamelCase' ? 'apim${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Apim' : letterCaseType == 'CamelCase' ? 'apim${toLower(prefix)}Apim' : 'apim${toLower(prefix)}-apim'
+param apiManagementName string = letterCaseType == 'UpperCamelCase'
+  ? 'apim${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Apim'
+  : letterCaseType == 'CamelCase' ? 'apim${toLower(prefix)}Apim' : 'apim${toLower(prefix)}-apim'
 
 @description('Specifies whether creating the Azure App Service Plan resource or not.')
 param appServicePlanEnabled bool = false
 
 @description('Specifies the name of the Azure App Service Plan.')
-param appServicePlanName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Asp' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Asp' : '${toLower(prefix)}-asp'
+param appServicePlanName string = letterCaseType == 'UpperCamelCase'
+  ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Asp'
+  : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Asp' : '${toLower(prefix)}-asp'
 
 @description('Specifies whether creating the Azure App Service resource or not.')
 param appServiceEnabled bool = false
 
 @description('Specifies the name of the Azure App Service.')
-param appServiceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}As' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}As' : '${toLower(prefix)}-as'
+param appServiceName string = letterCaseType == 'UpperCamelCase'
+  ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}As'
+  : letterCaseType == 'CamelCase' ? '${toLower(prefix)}As' : '${toLower(prefix)}-as'
 
 @description('')
 param appServiceAllowedOrigins array = []
@@ -110,7 +120,9 @@ param appServiceAllowedOrigins array = []
 param containerAppsEnvironmentEnabled bool = false
 
 @description('Specifies the name of the Azure Container Apps Environment.')
-param containerAppsEnvironmentName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Environment' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Environment' : '${toLower(prefix)}-environment'
+param containerAppsEnvironmentName string = letterCaseType == 'UpperCamelCase'
+  ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Environment'
+  : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Environment' : '${toLower(prefix)}-environment'
 
 @description('Specifies whether the environment only has an internal load balancer. These environments do not have a public static IP resource. They must provide infrastructureSubnetId if enabling this property')
 param internal bool = false
@@ -131,7 +143,9 @@ param zoneRedundant bool = true
 param openAiEnabled bool = false
 
 @description('Specifies the name of the Azure OpenAI resource.')
-param openAiName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}OpenAi' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}OpenAi' : '${toLower(prefix)}-openai'
+param openAiName string = letterCaseType == 'UpperCamelCase'
+  ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}OpenAi'
+  : letterCaseType == 'CamelCase' ? '${toLower(prefix)}OpenAi' : '${toLower(prefix)}-openai'
 
 @description('Specifies the resource model definition representing SKU.')
 param openAiSku object = {
@@ -180,7 +194,9 @@ param containerRegistryEnabled bool = false
 @description('Name of your Azure Container Registry')
 @minLength(5)
 @maxLength(50)
-param containerRegistryName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Acr' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Acr' : '${toLower(prefix)}-acr'
+param containerRegistryName string = letterCaseType == 'UpperCamelCase'
+  ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Acr'
+  : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Acr' : '${toLower(prefix)}-acr'
 
 @description('Enable admin user that have push / pull permission to the registry.')
 param containerRegistryAdminUserEnabled bool = false
@@ -199,7 +215,9 @@ param iotHubEnabled bool = false
 @description('Name of your Azure IoT Hub')
 @minLength(5)
 @maxLength(50)
-param iotHubName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}IotHub' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}IotHub' : '${toLower(prefix)}-iothub'
+param iotHubName string = letterCaseType == 'UpperCamelCase'
+  ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}IotHub'
+  : letterCaseType == 'CamelCase' ? '${toLower(prefix)}IotHub' : '${toLower(prefix)}-iothub'
 
 @description('The SKU to use for the IoT Hub.')
 @allowed([
@@ -217,7 +235,9 @@ param iotHubSku string = 'S1'
 param virtualNetworkEnabled bool = false
 
 @description('Name of your Azure Virtual Network')
-param virtualNetworkName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}VNet' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}VNet' : '${toLower(prefix)}-vnet'
+param virtualNetworkName string = letterCaseType == 'UpperCamelCase'
+  ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}VNet'
+  : letterCaseType == 'CamelCase' ? '${toLower(prefix)}VNet' : '${toLower(prefix)}-vnet'
 
 @description('Specifies whether creating the Azure Bastion Host resource or not.')
 param bastionHostEnabled bool = false
@@ -246,7 +266,9 @@ param authenticationType string = 'password'
 param aksClusterEnabled bool = false
 
 @description('Specifies the name of the Azure Kubernetes Service resource.')
-param aksClusterName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Aks' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Aks' : '${toLower(prefix)}-aks'
+param aksClusterName string = letterCaseType == 'UpperCamelCase'
+  ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Aks'
+  : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Aks' : '${toLower(prefix)}-aks'
 
 module logAnalytics '../../modules/logAnalytics.bicep' = if (logAnalyticsEnabled) {
   name: 'logAnalytics'
@@ -279,12 +301,10 @@ module storageAccount '../../modules/storageAccount.bicep' = if (storageAccountE
   name: 'storageAccount'
   params: {
     name: storageAccountName
-    createContainers: true
     containerNames: [
       'dev'
       'prod'
     ]
-    keyVaultName: keyVaultEnabled ? keyVault.outputs.name : ''
     workspaceId: logAnalyticsEnabled ? logAnalytics.outputs.id : ''
     location: location
     tags: tags
@@ -428,7 +448,11 @@ module virtualMachine '../../modules/virtualMachine.bicep' = if (virtualMachineE
     vmAdminPasswordOrKey: vmAdminPasswordOrKey
     vmAdminUsername: vmAdminUsername
     authenticationType: authenticationType
-    managedIdentityName: letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}AzureMonitorAgentManagedIdentity' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}AzureMonitorAgentManagedIdentity' : '${toLower(prefix)}-azure-monitor-agent-managed-identity'
+    managedIdentityName: letterCaseType == 'UpperCamelCase'
+      ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}AzureMonitorAgentManagedIdentity'
+      : letterCaseType == 'CamelCase'
+          ? '${toLower(prefix)}AzureMonitorAgentManagedIdentity'
+          : '${toLower(prefix)}-azure-monitor-agent-managed-identity'
     location: location
     tags: tags
   }
