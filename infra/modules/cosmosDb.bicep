@@ -11,10 +11,10 @@ param tags object = {}
 param cosmosDbDatabaseName string
 param cosmosDbContainerName string
 
-@allowed([ 'Enabled', 'Disabled' ])
+@allowed(['Enabled', 'Disabled'])
 param publicNetworkAccess string
 
-resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2023-09-15' = {
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
   name: name
   location: location
   tags: tags
@@ -27,12 +27,13 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2023-09-15' = {
     locations: [
       {
         locationName: location
-      } ]
+      }
+    ]
     publicNetworkAccess: publicNetworkAccess
   }
 }
 
-resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-09-15' = {
+resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-05-15' = {
   parent: cosmosDbAccount
   name: cosmosDbDatabaseName
   properties: {
@@ -43,10 +44,9 @@ resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@20
       throughput: 400
     }
   }
-
 }
 
-resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-09-15' = {
+resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15' = {
   parent: cosmosDbDatabase
   name: cosmosDbContainerName
   properties: {
