@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "18141694527227317090"
+      "templateHash": "17446566130346419992"
     }
   },
   "parameters": {
@@ -141,7 +141,7 @@
     },
     "iotHubSku": {
       "type": "string",
-      "defaultValue": "B1",
+      "defaultValue": "S1",
       "metadata": {
         "description": "Specifies the resource model definition representing SKU."
       }

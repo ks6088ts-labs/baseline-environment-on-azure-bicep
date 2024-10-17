@@ -66,7 +66,7 @@ param bingSearchSku object = {
 param iotHubName string = '${prefix}iothub'
 
 @description('Specifies the resource model definition representing SKU.')
-param iotHubSku string = 'B1'
+param iotHubSku string = 'S1'
 
 @description('Specifies the name of the Cosmos DB database.')
 param cosmosDbName string = '${toLower(prefix)}cosmosdb'
