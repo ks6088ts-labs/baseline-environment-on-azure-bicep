@@ -38,4 +38,4 @@ jobs:
           azcliversion: 2.51.0
           inlineScript: |
             cd infra
-            make ci-test
+            make ci-test LOCATION=eastus
