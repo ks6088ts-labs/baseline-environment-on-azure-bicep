@@ -1,0 +1,1269 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.30.23.60470",
+      "templateHash": "18141694527227317090"
+    }
+  },
+  "parameters": {
+    "prefix": {
+      "type": "string",
+      "defaultValue": "[substring(uniqueString(resourceGroup().id, parameters('location')), 0, 4)]",
+      "minLength": 4,
+      "maxLength": 10,
+      "metadata": {
+        "description": "Specifies the name prefix for all the Azure resources."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Specifies the location for all the Azure resources."
+      }
+    },
+    "logAnalyticsName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-log-analytics', parameters('prefix'))]",
+      "metadata": {
+        "description": "Specifies the name of the Azure Log Analytics resource."
+      }
+    },
+    "logAnalyticsSku": {
+      "type": "string",
+      "defaultValue": "PerNode",
+      "allowedValues": [
+        "Free",
+        "Standalone",
+        "PerNode",
+        "PerGB2018"
+      ],
+      "metadata": {
+        "description": "Specifies the service tier of the workspace: Free, Standalone, PerNode, Per-GB."
+      }
+    },
+    "logAnalyticsRetentionInDays": {
+      "type": "int",
+      "defaultValue": 60,
+      "metadata": {
+        "description": "Specifies the workspace data retention in days. -1 means Unlimited retention for the Unlimited Sku. 730 days is the maximum allowed for all other Skus."
+      }
+    },
+    "logAnalyticsEnabled": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Specifies whether to enable LogAnalytics"
+      }
+    },
+    "aiServicesName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-ai-services', parameters('prefix'))]",
+      "metadata": {
+        "description": "Specifies the name of the Azure AI Services resource."
+      }
+    },
+    "aiServicesSku": {
+      "type": "object",
+      "defaultValue": {
+        "name": "S0"
+      },
+      "metadata": {
+        "description": "Specifies the resource model definition representing SKU."
+      }
+    },
+    "aiServicesIdentity": {
+      "type": "object",
+      "defaultValue": {
+        "type": "SystemAssigned"
+      },
+      "metadata": {
+        "description": "Specifies the identity of the Azure AI Services resource."
+      }
+    },
+    "aiServicesCustomSubDomainName": {
+      "type": "string",
+      "defaultValue": "[toLower(parameters('aiServicesName'))]",
+      "metadata": {
+        "description": "Specifies an optional subdomain name used for token-based authentication."
+      }
+    },
+    "aiServicesDisableLocalAuth": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Specifies whether disable the local authentication via API key."
+      }
+    },
+    "aiServicesPublicNetworkAccess": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "metadata": {
+        "description": "Specifies whether or not public endpoint access is allowed for this account.."
+      }
+    },
+    "openAiDeployments": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Specifies the OpenAI deployments to create."
+      }
+    },
+    "bingSearchName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-bing-search', parameters('prefix'))]",
+      "metadata": {
+        "description": "Specifies the name of the Bing Search resource."
+      }
+    },
+    "bingSearchSku": {
+      "type": "object",
+      "defaultValue": {
+        "name": "S1"
+      },
+      "metadata": {
+        "description": "Specifies the resource model definition representing SKU."
+      }
+    },
+    "iotHubName": {
+      "type": "string",
+      "defaultValue": "[format('{0}iothub', parameters('prefix'))]",
+      "metadata": {
+        "description": "Specifies the name of the IoT Hub resource."
+      }
+    },
+    "iotHubSku": {
+      "type": "string",
+      "defaultValue": "B1",
+      "metadata": {
+        "description": "Specifies the resource model definition representing SKU."
+      }
+    },
+    "cosmosDbName": {
+      "type": "string",
+      "defaultValue": "[format('{0}cosmosdb', toLower(parameters('prefix')))]",
+      "metadata": {
+        "description": "Specifies the name of the Cosmos DB database."
+      }
+    },
+    "eventGridName": {
+      "type": "string",
+      "defaultValue": "[format('{0}eventgrid', parameters('prefix'))]",
+      "metadata": {
+        "description": "Specifies the name of the Event Grid resource."
+      }
+    },
+    "eventGridEncodedCertificate": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the name of the Event Grid encoded certificate."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "[format('{0}sta', parameters('prefix'))]",
+      "metadata": {
+        "description": "Specifies the name of the storage account."
+      }
+    },
+    "cosmosDbPublicNetworkAccess": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "metadata": {
+        "description": "Specifies whether or not public network access is allowed for this account."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Specifies the resource tags for all the resoources."
+      }
+    }
+  },
+  "resources": [
+    {
+      "condition": "[parameters('logAnalyticsEnabled')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "workspace",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('logAnalyticsName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "sku": {
+            "value": "[parameters('logAnalyticsSku')]"
+          },
+          "retentionInDays": {
+            "value": "[parameters('logAnalyticsRetentionInDays')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.30.23.60470",
+              "templateHash": "8187195660314916804"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Specifies the name of the Log Analytics workspace."
+              }
+            },
+            "sku": {
+              "type": "string",
+              "defaultValue": "PerGB2018",
+              "allowedValues": [
+                "CapacityReservation",
+                "Free",
+                "LACluster",
+                "PerGB2018",
+                "PerNode",
+                "Premium",
+                "Standalone",
+                "Standard"
+              ],
+              "metadata": {
+                "description": "Specify the pricing tier: PerGB2018 or legacy tiers (Free, Standalone, PerNode, Standard or Premium) which are not available to all customers."
+              }
+            },
+            "retentionInDays": {
+              "type": "int",
+              "defaultValue": 60,
+              "metadata": {
+                "description": "Specifies the workspace data retention in days. -1 means Unlimited retention for the Unlimited Sku. 730 days is the maximum allowed for all other Skus."
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Specifies the location."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Specifies the resource tags."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2022-10-01",
+              "name": "[parameters('name')]",
+              "tags": "[parameters('tags')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "sku": {
+                  "name": "[parameters('sku')]"
+                },
+                "retentionInDays": "[parameters('retentionInDays')]"
+              }
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
+            },
+            "name": {
+              "type": "string",
+              "value": "[parameters('name')]"
+            },
+            "customerId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('name')), '2022-10-01').customerId]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "aiServices",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('aiServicesName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "sku": {
+            "value": "[parameters('aiServicesSku')]"
+          },
+          "identity": {
+            "value": "[parameters('aiServicesIdentity')]"
+          },
+          "customSubDomainName": {
+            "value": "[parameters('aiServicesCustomSubDomainName')]"
+          },
+          "disableLocalAuth": {
+            "value": "[parameters('aiServicesDisableLocalAuth')]"
+          },
+          "publicNetworkAccess": {
+            "value": "[parameters('aiServicesPublicNetworkAccess')]"
+          },
+          "deployments": {
+            "value": "[parameters('openAiDeployments')]"
+          },
+          "workspaceId": "[if(parameters('logAnalyticsEnabled'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'workspace'), '2022-09-01').outputs.id.value), createObject('value', ''))]"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.30.23.60470",
+              "templateHash": "15362237948506364404"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Specifies the name of the Azure AI Services account."
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Specifies the location."
+              }
+            },
+            "sku": {
+              "type": "object",
+              "defaultValue": {
+                "name": "S0"
+              },
+              "metadata": {
+                "description": "Specifies the resource model definition representing SKU."
+              }
+            },
+            "identity": {
+              "type": "object",
+              "defaultValue": {
+                "type": "SystemAssigned"
+              },
+              "metadata": {
+                "description": "Specifies the identity of the aiServices resource."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "metadata": {
+                "description": "Specifies the resource tags."
+              }
+            },
+            "customSubDomainName": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Specifies an optional subdomain name used for token-based authentication."
+              }
+            },
+            "disableLocalAuth": {
+              "type": "bool",
+              "defaultValue": true,
+              "metadata": {
+                "description": "Specifies whether disable the local authentication via API key."
+              }
+            },
+            "publicNetworkAccess": {
+              "type": "string",
+              "defaultValue": "Enabled",
+              "allowedValues": [
+                "Enabled",
+                "Disabled"
+              ],
+              "metadata": {
+                "description": "Specifies whether or not public endpoint access is allowed for this account.."
+              }
+            },
+            "deployments": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "Specifies the OpenAI deployments to create."
+              }
+            },
+            "workspaceId": {
+              "type": "string",
+              "metadata": {
+                "description": "Specifies the workspace id of the Log Analytics used to monitor the Application Gateway."
+              }
+            }
+          },
+          "variables": {
+            "copy": [
+              {
+                "name": "aiServicesLogs",
+                "count": "[length(variables('aiServicesLogCategories'))]",
+                "input": {
+                  "category": "[variables('aiServicesLogCategories')[copyIndex('aiServicesLogs')]]",
+                  "enabled": true
+                }
+              },
+              {
+                "name": "aiServicesMetrics",
+                "count": "[length(variables('aiServicesMetricCategories'))]",
+                "input": {
+                  "category": "[variables('aiServicesMetricCategories')[copyIndex('aiServicesMetrics')]]",
+                  "enabled": true
+                }
+              }
+            ],
+            "diagnosticSettingsName": "diagnosticSettings",
+            "aiServicesLogCategories": [
+              "Audit",
+              "RequestResponse",
+              "Trace"
+            ],
+            "aiServicesMetricCategories": [
+              "AllMetrics"
+            ]
+          },
+          "resources": [
+            {
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2024-06-01-preview",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "sku": "[parameters('sku')]",
+              "kind": "AIServices",
+              "identity": "[parameters('identity')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "customSubDomainName": "[parameters('customSubDomainName')]",
+                "disableLocalAuth": "[parameters('disableLocalAuth')]",
+                "publicNetworkAccess": "[parameters('publicNetworkAccess')]"
+              }
+            },
+            {
+              "copy": {
+                "name": "model",
+                "count": "[length(parameters('deployments'))]",
+                "mode": "serial",
+                "batchSize": 1
+              },
+              "type": "Microsoft.CognitiveServices/accounts/deployments",
+              "apiVersion": "2024-06-01-preview",
+              "name": "[format('{0}/{1}', parameters('name'), parameters('deployments')[copyIndex()].model.name)]",
+              "sku": {
+                "capacity": "[coalesce(parameters('deployments')[copyIndex()].sku.capacity, 100)]",
+                "name": "[if(empty(parameters('deployments')[copyIndex()].sku.name), 'Standard', parameters('deployments')[copyIndex()].sku.name)]"
+              },
+              "properties": {
+                "model": {
+                  "format": "OpenAI",
+                  "name": "[parameters('deployments')[copyIndex()].model.name]",
+                  "version": "[parameters('deployments')[copyIndex()].model.version]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('name'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('workspaceId'), ''))]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.CognitiveServices/accounts/{0}', parameters('name'))]",
+              "name": "[variables('diagnosticSettingsName')]",
+              "properties": {
+                "workspaceId": "[parameters('workspaceId')]",
+                "logs": "[variables('aiServicesLogs')]",
+                "metrics": "[variables('aiServicesMetrics')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('name'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('name'))]"
+            },
+            "name": {
+              "type": "string",
+              "value": "[parameters('name')]"
+            },
+            "endpoint": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('name')), '2024-06-01-preview').endpoint]"
+            },
+            "openAiEndpoint": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('name')), '2024-06-01-preview').endpoints['OpenAI Language Model Instance API']]"
+            },
+            "principalId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('name')), '2024-06-01-preview', 'full').identity.principalId]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'workspace')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "bingSearch",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('bingSearchName')]"
+          },
+          "location": {
+            "value": "global"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "sku": {
+            "value": "[parameters('bingSearchSku')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.30.23.60470",
+              "templateHash": "16446784136083077417"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Specifies the name of the Azure AI Services account."
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Specifies the location."
+              }
+            },
+            "sku": {
+              "type": "object",
+              "metadata": {
+                "description": "Specifies the resource model definition representing SKU."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "metadata": {
+                "description": "Specifies the resource tags."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Bing/accounts",
+              "apiVersion": "2020-06-10",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "sku": "[parameters('sku')]",
+              "tags": "[parameters('tags')]",
+              "kind": "Bing.Search.v7"
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Bing/accounts', parameters('name'))]"
+            },
+            "name": {
+              "type": "string",
+              "value": "[parameters('name')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "iotHub",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('iotHubName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "sku": {
+            "value": "[parameters('iotHubSku')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.30.23.60470",
+              "templateHash": "3550210297808081752"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 50,
+              "metadata": {
+                "description": "Name of your Azure IoT Hub"
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Specify the location of the resources."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Specifies the resource tags."
+              }
+            },
+            "sku": {
+              "type": "string",
+              "defaultValue": "S1",
+              "allowedValues": [
+                "B1",
+                "B2",
+                "B3",
+                "F1",
+                "S1",
+                "S2",
+                "S3"
+              ],
+              "metadata": {
+                "description": "The SKU to use for the IoT Hub."
+              }
+            },
+            "capacityUnits": {
+              "type": "int",
+              "defaultValue": 1,
+              "minValue": 1,
+              "maxValue": 200,
+              "metadata": {
+                "description": "Specifies the number of provisioned IoT Hub units. Restricted to 1 unit for the F1 SKU. Can be set up to maximum number allowed for subscription."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Devices/IotHubs",
+              "apiVersion": "2023-06-30",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {},
+              "sku": {
+                "name": "[parameters('sku')]",
+                "capacity": "[parameters('capacityUnits')]"
+              }
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Devices/IotHubs', parameters('name'))]"
+            },
+            "name": {
+              "type": "string",
+              "value": "[parameters('name')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "cosmosDb",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('cosmosDbName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "cosmosDbDatabaseName": {
+            "value": "[format('{0}database', parameters('cosmosDbName'))]"
+          },
+          "cosmosDbContainerName": {
+            "value": "[format('{0}container', parameters('cosmosDbName'))]"
+          },
+          "publicNetworkAccess": {
+            "value": "[parameters('cosmosDbPublicNetworkAccess')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.30.23.60470",
+              "templateHash": "8909580543158603695"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of your API Management service."
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Specifies the location."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Specifies the resource tags."
+              }
+            },
+            "cosmosDbDatabaseName": {
+              "type": "string"
+            },
+            "cosmosDbContainerName": {
+              "type": "string"
+            },
+            "publicNetworkAccess": {
+              "type": "string",
+              "allowedValues": [
+                "Enabled",
+                "Disabled"
+              ]
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts",
+              "apiVersion": "2024-05-15",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "kind": "GlobalDocumentDB",
+              "properties": {
+                "consistencyPolicy": {
+                  "defaultConsistencyLevel": "Session"
+                },
+                "databaseAccountOfferType": "Standard",
+                "locations": [
+                  {
+                    "locationName": "[parameters('location')]"
+                  }
+                ],
+                "publicNetworkAccess": "[parameters('publicNetworkAccess')]"
+              }
+            },
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+              "apiVersion": "2024-05-15",
+              "name": "[format('{0}/{1}', parameters('name'), parameters('cosmosDbDatabaseName'))]",
+              "properties": {
+                "resource": {
+                  "id": "[parameters('cosmosDbDatabaseName')]"
+                },
+                "options": {
+                  "throughput": 400
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('name'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+              "apiVersion": "2024-05-15",
+              "name": "[format('{0}/{1}/{2}', parameters('name'), parameters('cosmosDbDatabaseName'), parameters('cosmosDbContainerName'))]",
+              "properties": {
+                "resource": {
+                  "id": "[parameters('cosmosDbContainerName')]",
+                  "partitionKey": {
+                    "paths": [
+                      "/id"
+                    ],
+                    "kind": "Hash"
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('name'), parameters('cosmosDbDatabaseName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('name'))]"
+            },
+            "name": {
+              "type": "string",
+              "value": "[parameters('name')]"
+            },
+            "endpoint": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('name')), '2024-05-15').documentEndpoint]"
+            },
+            "databaseName": {
+              "type": "string",
+              "value": "[parameters('cosmosDbDatabaseName')]"
+            },
+            "containerName": {
+              "type": "string",
+              "value": "[parameters('cosmosDbContainerName')]"
+            },
+            "accountName": {
+              "type": "string",
+              "value": "[parameters('name')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "eventGrid",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('eventGridName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "encodedCertificate": {
+            "value": "[parameters('eventGridEncodedCertificate')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.30.23.60470",
+              "templateHash": "12402499790764131422"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of your Event Grid"
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Specifies the primary location of Azure resources."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Specifies the resource tags."
+              }
+            },
+            "eventGridNamesapceName": {
+              "type": "string",
+              "defaultValue": "[format('{0}egn', parameters('name'))]",
+              "metadata": {
+                "description": "Specifies the name of the Event Grid Namespace."
+              }
+            },
+            "eventGridNamesapceTopicSpaceName": {
+              "type": "string",
+              "defaultValue": "[format('{0}egnts', parameters('name'))]",
+              "metadata": {
+                "description": "Specifies the name of the Event Grid Namespace Topic Space."
+              }
+            },
+            "encodedCertificate": {
+              "type": "string",
+              "metadata": {
+                "description": "Specifies the name of the encoded certificate."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.EventGrid/namespaces",
+              "apiVersion": "2024-06-01-preview",
+              "name": "[parameters('eventGridNamesapceName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "sku": {
+                "name": "Standard",
+                "capacity": 1
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "isZoneRedundant": true,
+                "topicsConfiguration": {},
+                "topicSpacesConfiguration": {
+                  "state": "Enabled"
+                }
+              }
+            },
+            {
+              "condition": "[not(equals(parameters('encodedCertificate'), ''))]",
+              "type": "Microsoft.EventGrid/namespaces/caCertificates",
+              "apiVersion": "2024-06-01-preview",
+              "name": "[format('{0}/{1}', parameters('eventGridNamesapceName'), 'Intermediate01')]",
+              "properties": {
+                "encodedCertificate": "[parameters('encodedCertificate')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamesapceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.EventGrid/namespaces/clients",
+              "apiVersion": "2024-06-01-preview",
+              "name": "[format('{0}/{1}', parameters('eventGridNamesapceName'), 'sample_client')]",
+              "properties": {
+                "authenticationName": "sample_client",
+                "state": "Enabled",
+                "clientCertificateAuthentication": {
+                  "validationScheme": "SubjectMatchesAuthenticationName"
+                },
+                "attributes": {
+                  "room": "345",
+                  "floor": 12,
+                  "deviceTypes": [
+                    "Fan",
+                    "Light"
+                  ]
+                },
+                "description": "This is a sample client"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamesapceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.EventGrid/namespaces/topicSpaces",
+              "apiVersion": "2024-06-01-preview",
+              "name": "[format('{0}/{1}', parameters('eventGridNamesapceName'), parameters('eventGridNamesapceTopicSpaceName'))]",
+              "properties": {
+                "description": "This is a sample topic-space for Event Grid namespace",
+                "topicTemplates": [
+                  "sample/#"
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamesapceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.EventGrid/namespaces/permissionBindings",
+              "apiVersion": "2024-06-01-preview",
+              "name": "[format('{0}/{1}', parameters('eventGridNamesapceName'), 'samplesPub')]",
+              "properties": {
+                "clientGroupName": "$all",
+                "description": "A publisher permission binding for the namespace",
+                "permission": "Publisher",
+                "topicSpaceName": "[parameters('eventGridNamesapceTopicSpaceName')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamesapceName'))]",
+                "[resourceId('Microsoft.EventGrid/namespaces/topicSpaces', parameters('eventGridNamesapceName'), parameters('eventGridNamesapceTopicSpaceName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.EventGrid/namespaces/permissionBindings",
+              "apiVersion": "2024-06-01-preview",
+              "name": "[format('{0}/{1}', parameters('eventGridNamesapceName'), 'samplesSub')]",
+              "properties": {
+                "clientGroupName": "$all",
+                "description": "A subscriber permission binding for the namespace",
+                "permission": "Subscriber",
+                "topicSpaceName": "[parameters('eventGridNamesapceTopicSpaceName')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamesapceName'))]",
+                "[resourceId('Microsoft.EventGrid/namespaces/topicSpaces', parameters('eventGridNamesapceName'), parameters('eventGridNamesapceTopicSpaceName'))]"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "storageAccount",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('storageAccountName')]"
+          },
+          "containerNames": {
+            "value": [
+              "dev",
+              "prod"
+            ]
+          },
+          "workspaceId": "[if(parameters('logAnalyticsEnabled'), createObject('value', reference(resourceId('Microsoft.Resources/deployments', 'workspace'), '2022-09-01').outputs.id.value), createObject('value', ''))]",
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.30.23.60470",
+              "templateHash": "17091408532644668299"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string",
+              "metadata": {
+                "description": "Specifies the name of the storage account."
+              }
+            },
+            "containerNames": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "Specifies an array of containers to create."
+              }
+            },
+            "workspaceId": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Specifies the resource id of the Log Analytics workspace."
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Specifies the location."
+              }
+            },
+            "tags": {
+              "type": "object",
+              "defaultValue": {},
+              "metadata": {
+                "description": "Specifies the resource tags."
+              }
+            }
+          },
+          "variables": {
+            "copy": [
+              {
+                "name": "logs",
+                "count": "[length(variables('logCategories'))]",
+                "input": {
+                  "category": "[variables('logCategories')[copyIndex('logs')]]",
+                  "enabled": true
+                }
+              },
+              {
+                "name": "metrics",
+                "count": "[length(variables('metricCategories'))]",
+                "input": {
+                  "category": "[variables('metricCategories')[copyIndex('metrics')]]",
+                  "enabled": true
+                }
+              }
+            ],
+            "logAnalyticsEnabled": "[not(empty(parameters('workspaceId')))]",
+            "diagnosticSettingsName": "[format('{0}StorageAccountDiagnosticSettings', parameters('name'))]",
+            "logCategories": [
+              "StorageRead",
+              "StorageWrite",
+              "StorageDelete"
+            ],
+            "metricCategories": [
+              "Transaction"
+            ]
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "containers",
+                "count": "[length(parameters('containerNames'))]"
+              },
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2023-05-01",
+              "name": "[format('{0}/{1}/{2}', parameters('name'), 'default', parameters('containerNames')[copyIndex()])]",
+              "properties": {
+                "publicAccess": "None"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('name'), 'default')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/blobServices",
+              "apiVersion": "2023-05-01",
+              "name": "[format('{0}/{1}', parameters('name'), 'default')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2023-05-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "sku": {
+                "name": "Standard_LRS"
+              },
+              "kind": "StorageV2"
+            },
+            {
+              "condition": "[variables('logAnalyticsEnabled')]",
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Storage/storageAccounts/{0}/blobServices/{1}', parameters('name'), 'default')]",
+              "name": "[variables('diagnosticSettingsName')]",
+              "properties": {
+                "workspaceId": "[parameters('workspaceId')]",
+                "logs": "[variables('logs')]",
+                "metrics": "[variables('metrics')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('name'), 'default')]"
+              ]
+            }
+          ],
+          "outputs": {
+            "id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+            },
+            "name": {
+              "type": "string",
+              "value": "[parameters('name')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'workspace')]"
+      ]
+    }
+  ],
+  "outputs": {
+    "deploymentInfo": {
+      "type": "object",
+      "value": {
+        "subscriptionId": "[subscription().subscriptionId]",
+        "resourceGroupName": "[resourceGroup().name]",
+        "location": "[parameters('location')]",
+        "aiServicesName": "[reference(resourceId('Microsoft.Resources/deployments', 'aiServices'), '2022-09-01').outputs.name.value]",
+        "aiServicesEndpoint": "[reference(resourceId('Microsoft.Resources/deployments', 'aiServices'), '2022-09-01').outputs.endpoint.value]",
+        "iothubName": "[reference(resourceId('Microsoft.Resources/deployments', 'iotHub'), '2022-09-01').outputs.name.value]"
+      }
+    }
+  }
+}
