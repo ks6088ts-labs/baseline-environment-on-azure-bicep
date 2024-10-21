@@ -1,6 +1,6 @@
 using 'main.bicep'
 
-param location = 'japaneast'
+param location = 'eastus2'
 
 param openAiDeployments = [
   {
@@ -33,8 +33,28 @@ param openAiDeployments = [
       capacity: 10
     }
   }
+  {
+    model: {
+      name: 'gpt-4o-realtime-preview'
+      version: '2024-10-01'
+    }
+    sku: {
+      name: 'GlobalStandard'
+      capacity: 1
+    }
+  }
+  {
+    model: {
+      name: 'whisper'
+      version: '001'
+    }
+    sku: {
+      name: 'Standard'
+      capacity: 3
+    }
+  }
 ]
 
 param tags = {
-  scenario: 'ai-services'
+  scenario: 'workshop-azure-openai'
 }

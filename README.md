@@ -34,7 +34,6 @@ test                           test codes
 
 | Scenario                                                                     | Overview                                                |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------- |
-| [ai-services](./infra/scenarios/ai-services/README.md)                       | Quick start for Azure AI Services environment           |
 | [aoai](./infra/scenarios/aoai/README.md)                                     | Azure OpenAI Playground using public registry for Bicep |
 | [aoai-apim](./infra/scenarios/aoai-apim/README.md)                           | Call Azure OpenAI Service API via API Management        |
 | [bicep-private-registry](./infra/scenarios/bicep-private-registry/README.md) | Hands on private registry for Bicep                     |
@@ -44,6 +43,8 @@ test                           test codes
 | [iot-hub-dps](./infra/scenarios/iot-hub-dps/README.md)                       | IoT Hub Device Provisioning Service                     |
 | [iot-hub-routing](./infra/scenarios/iot-hub-routing/README.md)               | IoT Hub routing                                         |
 | [sandbox-bastion](./infra/scenarios/sandbox-bastion/README.md)               | Sandbox with Bastion                                    |
+| [workshop-azure-iot](./infra/scenarios/workshop-azure-iot/README.md)         | Workshop for Azure IoT scenario                         |
+| [workshop-azure-openai](./infra/scenarios/workshop-azure-openai/README.md)   | Workshop for Azure OpenAI Service                       |
 
 ## Use GitHub Actions to connect to Azure
 

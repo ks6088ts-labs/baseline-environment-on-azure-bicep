@@ -1,6 +1,6 @@
-# IoT Hub routing scenario
+# Workshop for Azure IoT scenario
 
-This is a scenario for [ks6088ts-labs/workshop-azure-iot](https://github.com/ks6088ts-labs/workshop-azure-iot)
+This is a scenario for [ks6088ts-labs/workshop-azure-iot](https://github.com/ks6088ts-labs/workshop-azure-iot). This provides an infrastructure for the workshop.
 
 ## Deploy resources on Azure
 

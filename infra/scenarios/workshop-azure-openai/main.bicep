@@ -7,24 +7,6 @@ param prefix string = substring(uniqueString(resourceGroup().id, location), 0, 4
 @description('Specifies the location for all the Azure resources.')
 param location string = resourceGroup().location
 
-@description('Specifies the name of the Azure Log Analytics resource.')
-param logAnalyticsName string = '${prefix}-log-analytics'
-
-@description('Specifies the service tier of the workspace: Free, Standalone, PerNode, Per-GB.')
-@allowed([
-  'Free'
-  'Standalone'
-  'PerNode'
-  'PerGB2018'
-])
-param logAnalyticsSku string = 'PerNode'
-
-@description('Specifies the workspace data retention in days. -1 means Unlimited retention for the Unlimited Sku. 730 days is the maximum allowed for all other Skus.')
-param logAnalyticsRetentionInDays int = 60
-
-@description('Specifies whether to enable LogAnalytics')
-param logAnalyticsEnabled bool = false
-
 @description('Specifies the name of the Azure AI Services resource.')
 param aiServicesName string = '${prefix}-ai-services'
 
@@ -66,17 +48,6 @@ param bingSearchSku object = {
 param tags object = {}
 
 // Resources
-module workspace '../../modules/logAnalytics.bicep' = if (logAnalyticsEnabled) {
-  name: 'workspace'
-  params: {
-    name: logAnalyticsName
-    location: location
-    tags: tags
-    sku: logAnalyticsSku
-    retentionInDays: logAnalyticsRetentionInDays
-  }
-}
-
 module aiServices '../../modules/aiServices.bicep' = {
   name: 'aiServices'
   params: {
@@ -89,7 +60,7 @@ module aiServices '../../modules/aiServices.bicep' = {
     disableLocalAuth: aiServicesDisableLocalAuth
     publicNetworkAccess: aiServicesPublicNetworkAccess
     deployments: openAiDeployments
-    workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
+    workspaceId: ''
   }
 }
 
