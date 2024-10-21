@@ -41,7 +41,6 @@ test                           test codes
 | [iot-edge](./infra/scenarios/iot-edge/README.md)                             | IoT Edge workshop                                       |
 | [iot-hub-dps](./infra/scenarios/iot-hub-dps/README.md)                       | IoT Hub Device Provisioning Service                     |
 | [iot-hub-routing](./infra/scenarios/iot-hub-routing/README.md)               | IoT Hub routing                                         |
-| [sandbox-bastion](./infra/scenarios/sandbox-bastion/README.md)               | Sandbox with Bastion                                    |
 | [workshop-azure-iot](./infra/scenarios/workshop-azure-iot/README.md)         | Workshop for Azure IoT scenario                         |
 | [workshop-azure-openai](./infra/scenarios/workshop-azure-openai/README.md)   | Workshop for Azure OpenAI Service                       |
 
