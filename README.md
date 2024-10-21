@@ -37,7 +37,6 @@ test                           test codes
 | [aoai](./infra/scenarios/aoai/README.md)                                     | Azure OpenAI Playground using public registry for Bicep |
 | [aoai-apim](./infra/scenarios/aoai-apim/README.md)                           | Call Azure OpenAI Service API via API Management        |
 | [bicep-private-registry](./infra/scenarios/bicep-private-registry/README.md) | Hands on private registry for Bicep                     |
-| [event-grid-mqtt](./infra/scenarios/event-grid-mqtt/README.md)               | MQTT broker feature in Azure Event Grid                 |
 | [example](./infra/scenarios/example/README.md)                               | Example for describing how to use modules               |
 | [iot-edge](./infra/scenarios/iot-edge/README.md)                             | IoT Edge workshop                                       |
 | [iot-hub-dps](./infra/scenarios/iot-hub-dps/README.md)                       | IoT Hub Device Provisioning Service                     |

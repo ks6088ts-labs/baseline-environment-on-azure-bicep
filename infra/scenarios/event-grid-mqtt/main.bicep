@@ -237,67 +237,67 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-04-01' = {
   }
 }
 
-resource hostingPlan 'Microsoft.Web/serverfarms@2023-12-01' = {
-  name: '${prefix}-plan'
-  location: location
-  tags: tags
-  kind: 'functionapp'
-  properties: {
-    reserved: true
-  }
-  sku: {
-    name: 'Y1'
-  }
-}
+// resource hostingPlan 'Microsoft.Web/serverfarms@2023-12-01' = {
+//   name: '${prefix}-plan'
+//   location: location
+//   tags: tags
+//   kind: 'functionapp'
+//   properties: {
+//     reserved: true
+//   }
+//   sku: {
+//     name: 'Y1'
+//   }
+// }
 
-resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
-  name: functionAppName
-  location: location
-  tags: union(tags, {
-    'azd-service-name': 'api'
-  })
-  kind: 'functionapp,linux'
-  properties: {
-    httpsOnly: true
-    serverFarmId: hostingPlan.id
-    clientAffinityEnabled: false
-    siteConfig: {
-      minTlsVersion: '1.2'
-      linuxFxVersion: 'Python|3.11'
-      appSettings: [
-        {
-          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: appInsights.properties.InstrumentationKey
-        }
-        {
-          name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${az.environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
-        }
-        {
-          name: 'WEBSITE_CONTENTSHARE'
-          value: toLower(functionAppName)
-        }
-        {
-          name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~4'
-        }
-        {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'python'
-        }
-        {
-          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${az.environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
-        }
-        {
-          name: 'ENABLE_ORYX_BUILD'
-          value: 'true'
-        }
-        {
-          name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
-          value: 'true'
-        }
-      ]
-    }
-  }
-}
+// resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
+//   name: functionAppName
+//   location: location
+//   tags: union(tags, {
+//     'azd-service-name': 'api'
+//   })
+//   kind: 'functionapp,linux'
+//   properties: {
+//     httpsOnly: true
+//     serverFarmId: hostingPlan.id
+//     clientAffinityEnabled: false
+//     siteConfig: {
+//       minTlsVersion: '1.2'
+//       linuxFxVersion: 'Python|3.11'
+//       appSettings: [
+//         {
+//           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+//           value: appInsights.properties.InstrumentationKey
+//         }
+//         {
+//           name: 'AzureWebJobsStorage'
+//           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${az.environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+//         }
+//         {
+//           name: 'WEBSITE_CONTENTSHARE'
+//           value: toLower(functionAppName)
+//         }
+//         {
+//           name: 'FUNCTIONS_EXTENSION_VERSION'
+//           value: '~4'
+//         }
+//         {
+//           name: 'FUNCTIONS_WORKER_RUNTIME'
+//           value: 'python'
+//         }
+//         {
+//           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+//           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${az.environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+//         }
+//         {
+//           name: 'ENABLE_ORYX_BUILD'
+//           value: 'true'
+//         }
+//         {
+//           name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
+//           value: 'true'
+//         }
+//       ]
+//     }
+//   }
+// }
