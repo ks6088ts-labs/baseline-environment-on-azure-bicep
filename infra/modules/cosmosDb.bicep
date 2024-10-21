@@ -1,5 +1,5 @@
 // Parameters
-@description('Name of your API Management service.')
+@description('Name of your CosmosDB service.')
 param name string
 
 @description('Specifies the location.')
@@ -7,6 +7,11 @@ param location string = resourceGroup().location
 
 @description('Specifies the resource tags.')
 param tags object = {}
+
+@description('Specifies the identity of the CosmosDB resource.')
+param identity object = {
+  type: 'SystemAssigned'
+}
 
 param cosmosDbDatabaseName string
 param cosmosDbContainerName string
@@ -19,6 +24,7 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
   location: location
   tags: tags
   kind: 'GlobalDocumentDB'
+  identity: identity
   properties: {
     consistencyPolicy: {
       defaultConsistencyLevel: 'Session'

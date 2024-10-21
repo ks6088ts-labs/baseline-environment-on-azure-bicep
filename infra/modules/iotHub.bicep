@@ -10,6 +10,11 @@ param location string = resourceGroup().location
 @description('Specifies the resource tags.')
 param tags object = {}
 
+@description('Specifies the identity of the IoT Hub resource.')
+param identity object = {
+  type: 'SystemAssigned'
+}
+
 @description('The SKU to use for the IoT Hub.')
 @allowed([
   'B1'
@@ -31,6 +36,7 @@ resource iotHub 'Microsoft.Devices/IotHubs@2023-06-30' = {
   name: name
   location: location
   tags: tags
+  identity: identity
   properties: {}
   sku: {
     name: sku

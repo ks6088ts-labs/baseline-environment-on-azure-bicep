@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "17446566130346419992"
+      "templateHash": "13073313425214993770"
     }
   },
   "parameters": {
@@ -662,7 +662,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "3550210297808081752"
+              "templateHash": "10387845037131344919"
             }
           },
           "parameters": {
@@ -686,6 +686,15 @@
               "defaultValue": {},
               "metadata": {
                 "description": "Specifies the resource tags."
+              }
+            },
+            "identity": {
+              "type": "object",
+              "defaultValue": {
+                "type": "SystemAssigned"
+              },
+              "metadata": {
+                "description": "Specifies the identity of the IoT Hub resource."
               }
             },
             "sku": {
@@ -721,6 +730,7 @@
               "name": "[parameters('name')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]",
+              "identity": "[parameters('identity')]",
               "properties": {},
               "sku": {
                 "name": "[parameters('sku')]",
@@ -777,14 +787,14 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "8909580543158603695"
+              "templateHash": "9383968711438976163"
             }
           },
           "parameters": {
             "name": {
               "type": "string",
               "metadata": {
-                "description": "Name of your API Management service."
+                "description": "Name of your CosmosDB service."
               }
             },
             "location": {
@@ -799,6 +809,15 @@
               "defaultValue": {},
               "metadata": {
                 "description": "Specifies the resource tags."
+              }
+            },
+            "identity": {
+              "type": "object",
+              "defaultValue": {
+                "type": "SystemAssigned"
+              },
+              "metadata": {
+                "description": "Specifies the identity of the CosmosDB resource."
               }
             },
             "cosmosDbDatabaseName": {
@@ -823,6 +842,7 @@
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]",
               "kind": "GlobalDocumentDB",
+              "identity": "[parameters('identity')]",
               "properties": {
                 "consistencyPolicy": {
                   "defaultConsistencyLevel": "Session"

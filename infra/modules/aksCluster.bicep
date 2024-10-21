@@ -1,5 +1,5 @@
 // Parameters
-@description('Name of your API Management service.')
+@description('Name of your AKS service.')
 param name string
 
 @description('Specifies the location.')

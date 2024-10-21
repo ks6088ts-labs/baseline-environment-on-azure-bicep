@@ -1,5 +1,5 @@
 // Parameters
-@description('Name of your API Management service.')
+@description('Name of your App Service.')
 param name string
 
 @description('Specifies the location.')
@@ -65,7 +65,7 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
       functionAppScaleLimit: functionAppScaleLimit != -1 ? functionAppScaleLimit : null
       healthCheckPath: healthCheckPath
       cors: {
-        allowedOrigins: union([ 'https://portal.azure.com', 'https://ms.portal.azure.com' ], allowedOrigins)
+        allowedOrigins: union(['https://portal.azure.com', 'https://ms.portal.azure.com'], allowedOrigins)
       }
     }
     clientAffinityEnabled: clientAffinityEnabled
@@ -76,12 +76,16 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
 
   resource configAppSettings 'config' = {
     name: 'appsettings'
-    properties: union(appSettings,
+    properties: union(
+      appSettings,
       {
         SCM_DO_BUILD_DURING_DEPLOYMENT: string(scmDoBuildDuringDeployment)
         ENABLE_ORYX_BUILD: string(enableOryxBuild)
       },
-      !empty(applicationInsightsName) ? { APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsights.properties.ConnectionString } : {})
+      !empty(applicationInsightsName)
+        ? { APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsights.properties.ConnectionString }
+        : {}
+    )
   }
 
   resource configLogs 'config' = {
