@@ -71,6 +71,13 @@ param iotHubSku string = 'S1'
 @description('Specifies the name of the Cosmos DB database.')
 param cosmosDbName string = '${toLower(prefix)}cosmosdb'
 
+@description('Specifies whether or not public network access is allowed for this account.')
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param cosmosDbPublicNetworkAccess string = 'Enabled'
+
 @description('Specifies the name of the Event Grid resource.')
 param eventGridName string = '${prefix}eventgrid'
 
@@ -83,12 +90,8 @@ param eventHubName string = '${prefix}eventhub'
 @description('Specifies the name of the storage account.')
 param storageAccountName string = '${prefix}sta'
 
-@description('Specifies whether or not public network access is allowed for this account.')
-@allowed([
-  'Enabled'
-  'Disabled'
-])
-param cosmosDbPublicNetworkAccess string = 'Enabled'
+@description('Specifies the name of the Azure Container Registry resource.')
+param containerRegistryName string = '${prefix}acr'
 
 @description('Specifies the resource tags for all the resoources.')
 param tags object = {}
@@ -183,6 +186,17 @@ module storageAccount '../../modules/storageAccount.bicep' = {
     workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
     location: location
     tags: tags
+  }
+}
+
+module containerRegistry '../../modules/containerRegistry.bicep' = {
+  name: 'containerRegistry'
+  params: {
+    name: containerRegistryName
+    workspaceId: logAnalyticsEnabled ? workspace.outputs.id : ''
+    location: location
+    tags: tags
+    adminUserEnabled: true
   }
 }
 
