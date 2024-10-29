@@ -77,6 +77,9 @@ param eventGridName string = '${prefix}eventgrid'
 @description('Specifies the name of the Event Grid encoded certificate.')
 param eventGridEncodedCertificate string = ''
 
+@description('Specifies the name of the Event Hub resource.')
+param eventHubName string = '${prefix}eventhub'
+
 @description('Specifies the name of the storage account.')
 param storageAccountName string = '${prefix}sta'
 
@@ -157,6 +160,15 @@ module eventGrid '../../modules/eventGrid.bicep' = {
     location: location
     tags: tags
     encodedCertificate: eventGridEncodedCertificate
+  }
+}
+
+module eventHub '../../modules/eventHub.bicep' = {
+  name: 'eventHub'
+  params: {
+    name: eventHubName
+    location: location
+    tags: tags
   }
 }
 

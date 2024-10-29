@@ -9,16 +9,16 @@ param location string = resourceGroup().location
 param tags object = {}
 
 @description('Specifies the name of the Event Grid Namespace.')
-param eventGridNamesapceName string = '${name}egn'
+param eventGridNamespaceName string = '${name}egn'
 
 @description('Specifies the name of the Event Grid Namespace Topic Space.')
-param eventGridNamesapceTopicSpaceName string = '${name}egnts'
+param eventGridNamespaceTopicSpaceName string = '${name}egnts'
 
 @description('Specifies the name of the encoded certificate.')
 param encodedCertificate string
 
-resource eventGridNamesapce 'Microsoft.EventGrid/namespaces@2024-06-01-preview' = {
-  name: eventGridNamesapceName
+resource eventGridNamespace 'Microsoft.EventGrid/namespaces@2024-06-01-preview' = {
+  name: eventGridNamespaceName
   location: location
   tags: tags
   sku: {
@@ -38,7 +38,7 @@ resource eventGridNamesapce 'Microsoft.EventGrid/namespaces@2024-06-01-preview' 
 }
 
 resource eventGridCaCertificate 'Microsoft.EventGrid/namespaces/caCertificates@2024-06-01-preview' = if (encodedCertificate != '') {
-  parent: eventGridNamesapce
+  parent: eventGridNamespace
   name: 'Intermediate01'
   properties: {
     encodedCertificate: encodedCertificate
@@ -46,7 +46,7 @@ resource eventGridCaCertificate 'Microsoft.EventGrid/namespaces/caCertificates@2
 }
 
 resource eventGridClient 'Microsoft.EventGrid/namespaces/clients@2024-06-01-preview' = {
-  parent: eventGridNamesapce
+  parent: eventGridNamespace
   name: 'sample_client'
   properties: {
     authenticationName: 'sample_client'
@@ -66,9 +66,9 @@ resource eventGridClient 'Microsoft.EventGrid/namespaces/clients@2024-06-01-prev
   }
 }
 
-resource eventGridNamesapceTopicSpace 'Microsoft.EventGrid/namespaces/topicSpaces@2024-06-01-preview' = {
-  parent: eventGridNamesapce
-  name: eventGridNamesapceTopicSpaceName
+resource eventGridNamespaceTopicSpace 'Microsoft.EventGrid/namespaces/topicSpaces@2024-06-01-preview' = {
+  parent: eventGridNamespace
+  name: eventGridNamespaceTopicSpaceName
   properties: {
     description: 'This is a sample topic-space for Event Grid namespace'
     topicTemplates: [
@@ -79,22 +79,22 @@ resource eventGridNamesapceTopicSpace 'Microsoft.EventGrid/namespaces/topicSpace
 
 resource permissionBindingForPublisher 'Microsoft.EventGrid/namespaces/permissionBindings@2024-06-01-preview' = {
   name: 'samplesPub'
-  parent: eventGridNamesapce
+  parent: eventGridNamespace
   properties: {
     clientGroupName: '$all'
     description: 'A publisher permission binding for the namespace'
     permission: 'Publisher'
-    topicSpaceName: eventGridNamesapceTopicSpace.name
+    topicSpaceName: eventGridNamespaceTopicSpace.name
   }
 }
 
 resource permissionBindingForSubscriber 'Microsoft.EventGrid/namespaces/permissionBindings@2024-06-01-preview' = {
   name: 'samplesSub'
-  parent: eventGridNamesapce
+  parent: eventGridNamespace
   properties: {
     clientGroupName: '$all'
     description: 'A subscriber permission binding for the namespace'
     permission: 'Subscriber'
-    topicSpaceName: eventGridNamesapceTopicSpace.name
+    topicSpaceName: eventGridNamespaceTopicSpace.name
   }
 }
