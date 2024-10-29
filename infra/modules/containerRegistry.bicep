@@ -13,6 +13,11 @@ param adminUserEnabled bool = false
 ])
 param sku string = 'Basic'
 
+@description('Specifies the identity of the Container Registry resource.')
+param identity object = {
+  type: 'SystemAssigned'
+}
+
 @description('Specifies the resource id of the Log Analytics workspace.')
 param workspaceId string = ''
 
@@ -32,23 +37,28 @@ var logCategories = [
 var metricCategories = [
   'AllMetrics'
 ]
-var logs = [for category in logCategories: {
-  category: category
-  enabled: true
-}]
-var metrics = [for category in metricCategories: {
-  category: category
-  enabled: true
-}]
+var logs = [
+  for category in logCategories: {
+    category: category
+    enabled: true
+  }
+]
+var metrics = [
+  for category in metricCategories: {
+    category: category
+    enabled: true
+  }
+]
 
 // Resources
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-08-01-preview' = {
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: name
   location: location
   tags: tags
   sku: {
     name: sku
   }
+  identity: identity
   properties: {
     adminUserEnabled: adminUserEnabled
   }
