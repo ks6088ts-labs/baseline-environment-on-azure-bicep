@@ -9,7 +9,7 @@ param location string = resourceGroup().location
 param tags object = {}
 
 @description('Specifies the name of the Event Grid Namespace.')
-param eventGridNamesapceName string = '${prefix}egn'
+param eventGridNamespaceName string = '${prefix}egn'
 
 @description('Specifies the name of the Event Grid Topic')
 param eventGridTopicName string = '${prefix}egt'
@@ -21,7 +21,7 @@ param eventGridClientThumbprint1 string
 param eventGridClientThumbprint2 string
 
 @description('Specifies the name of the Event Grid Namespace Topic Space.')
-param eventGridNamesapceTopicSpaceName string = 'ContosoTopicSpace'
+param eventGridNamespaceTopicSpaceName string = 'ContosoTopicSpace'
 
 @description('Specifies whether creating the Event Hub resource or not.')
 param eventHubEnabled bool = false
@@ -38,8 +38,8 @@ param enableRoleAssignment bool = false
 // EventGrid Data Sender: https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/integration#eventgrid-data-sender
 var eventGridDataSenderRoleDefinitionId = 'd5a91429-5739-47e2-a06b-3470a27159e7'
 
-resource eventGridNamesapce 'Microsoft.EventGrid/namespaces@2024-06-01-preview' = {
-  name: eventGridNamesapceName
+resource eventGridNamespace 'Microsoft.EventGrid/namespaces@2024-06-01-preview' = {
+  name: eventGridNamespaceName
   location: location
   tags: tags
   sku: {
@@ -70,7 +70,7 @@ resource eventGridTopic 'Microsoft.EventGrid/topics@2024-06-01-preview' = {
 }
 
 resource eventGridClient1 'Microsoft.EventGrid/namespaces/clients@2024-06-01-preview' = {
-  parent: eventGridNamesapce
+  parent: eventGridNamespace
   name: 'client1'
   properties: {
     authenticationName: 'client1-authn-ID'
@@ -94,7 +94,7 @@ resource eventGridClient1 'Microsoft.EventGrid/namespaces/clients@2024-06-01-pre
 }
 
 resource eventGridClient2 'Microsoft.EventGrid/namespaces/clients@2024-06-01-preview' = {
-  parent: eventGridNamesapce
+  parent: eventGridNamespace
   name: 'client2'
   properties: {
     authenticationName: 'client2-authn-ID'
@@ -117,9 +117,9 @@ resource eventGridClient2 'Microsoft.EventGrid/namespaces/clients@2024-06-01-pre
   }
 }
 
-resource eventGridNamesapceTopicSpace 'Microsoft.EventGrid/namespaces/topicSpaces@2024-06-01-preview' = {
-  parent: eventGridNamesapce
-  name: eventGridNamesapceTopicSpaceName
+resource eventGridNamespaceTopicSpace 'Microsoft.EventGrid/namespaces/topicSpaces@2024-06-01-preview' = {
+  parent: eventGridNamespace
+  name: eventGridNamespaceTopicSpaceName
   properties: {
     description: 'This is a sample topic-space for Event Grid namespace'
     topicTemplates: [
@@ -130,32 +130,32 @@ resource eventGridNamesapceTopicSpace 'Microsoft.EventGrid/namespaces/topicSpace
 
 resource permissionBindingForPublisher 'Microsoft.EventGrid/namespaces/permissionBindings@2024-06-01-preview' = {
   name: 'contosopublisherbinding'
-  parent: eventGridNamesapce
+  parent: eventGridNamespace
   properties: {
     clientGroupName: '$all'
     description: 'A publisher permission binding for the namespace'
     permission: 'Publisher'
-    topicSpaceName: eventGridNamesapceTopicSpace.name
+    topicSpaceName: eventGridNamespaceTopicSpace.name
   }
 }
 
 resource permissionBindingForSubscriber 'Microsoft.EventGrid/namespaces/permissionBindings@2024-06-01-preview' = {
   name: 'contososubscriberbinding'
-  parent: eventGridNamesapce
+  parent: eventGridNamespace
   properties: {
     clientGroupName: '$all'
     description: 'A subscriber permission binding for the namespace'
     permission: 'Subscriber'
-    topicSpaceName: eventGridNamesapceTopicSpace.name
+    topicSpaceName: eventGridNamespaceTopicSpace.name
   }
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (enableRoleAssignment) {
-  name: guid(eventGridNamesapce.id, eventGridDataSenderRoleDefinitionId, eventGridTopic.id)
+  name: guid(eventGridNamespace.id, eventGridDataSenderRoleDefinitionId, eventGridTopic.id)
   scope: eventGridTopic
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', eventGridDataSenderRoleDefinitionId)
-    principalId: eventGridNamesapce.identity.principalId
+    principalId: eventGridNamespace.identity.principalId
   }
 }
 

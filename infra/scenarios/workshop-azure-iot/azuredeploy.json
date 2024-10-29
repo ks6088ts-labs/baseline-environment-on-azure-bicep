@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.23.60470",
-      "templateHash": "13073313425214993770"
+      "templateHash": "1212869889502305564"
     }
   },
   "parameters": {
@@ -951,7 +951,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.23.60470",
-              "templateHash": "12402499790764131422"
+              "templateHash": "3639608741353096271"
             }
           },
           "parameters": {
@@ -975,14 +975,14 @@
                 "description": "Specifies the resource tags."
               }
             },
-            "eventGridNamesapceName": {
+            "eventGridNamespaceName": {
               "type": "string",
               "defaultValue": "[format('{0}egn', parameters('name'))]",
               "metadata": {
                 "description": "Specifies the name of the Event Grid Namespace."
               }
             },
-            "eventGridNamesapceTopicSpaceName": {
+            "eventGridNamespaceTopicSpaceName": {
               "type": "string",
               "defaultValue": "[format('{0}egnts', parameters('name'))]",
               "metadata": {
@@ -1000,7 +1000,7 @@
             {
               "type": "Microsoft.EventGrid/namespaces",
               "apiVersion": "2024-06-01-preview",
-              "name": "[parameters('eventGridNamesapceName')]",
+              "name": "[parameters('eventGridNamespaceName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]",
               "sku": {
@@ -1022,18 +1022,18 @@
               "condition": "[not(equals(parameters('encodedCertificate'), ''))]",
               "type": "Microsoft.EventGrid/namespaces/caCertificates",
               "apiVersion": "2024-06-01-preview",
-              "name": "[format('{0}/{1}', parameters('eventGridNamesapceName'), 'Intermediate01')]",
+              "name": "[format('{0}/{1}', parameters('eventGridNamespaceName'), 'Intermediate01')]",
               "properties": {
                 "encodedCertificate": "[parameters('encodedCertificate')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamesapceName'))]"
+                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamespaceName'))]"
               ]
             },
             {
               "type": "Microsoft.EventGrid/namespaces/clients",
               "apiVersion": "2024-06-01-preview",
-              "name": "[format('{0}/{1}', parameters('eventGridNamesapceName'), 'sample_client')]",
+              "name": "[format('{0}/{1}', parameters('eventGridNamespaceName'), 'sample_client')]",
               "properties": {
                 "authenticationName": "sample_client",
                 "state": "Enabled",
@@ -1051,13 +1051,13 @@
                 "description": "This is a sample client"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamesapceName'))]"
+                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamespaceName'))]"
               ]
             },
             {
               "type": "Microsoft.EventGrid/namespaces/topicSpaces",
               "apiVersion": "2024-06-01-preview",
-              "name": "[format('{0}/{1}', parameters('eventGridNamesapceName'), parameters('eventGridNamesapceTopicSpaceName'))]",
+              "name": "[format('{0}/{1}', parameters('eventGridNamespaceName'), parameters('eventGridNamespaceTopicSpaceName'))]",
               "properties": {
                 "description": "This is a sample topic-space for Event Grid namespace",
                 "topicTemplates": [
@@ -1065,37 +1065,37 @@
                 ]
               },
               "dependsOn": [
-                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamesapceName'))]"
+                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamespaceName'))]"
               ]
             },
             {
               "type": "Microsoft.EventGrid/namespaces/permissionBindings",
               "apiVersion": "2024-06-01-preview",
-              "name": "[format('{0}/{1}', parameters('eventGridNamesapceName'), 'samplesPub')]",
+              "name": "[format('{0}/{1}', parameters('eventGridNamespaceName'), 'samplesPub')]",
               "properties": {
                 "clientGroupName": "$all",
                 "description": "A publisher permission binding for the namespace",
                 "permission": "Publisher",
-                "topicSpaceName": "[parameters('eventGridNamesapceTopicSpaceName')]"
+                "topicSpaceName": "[parameters('eventGridNamespaceTopicSpaceName')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamesapceName'))]",
-                "[resourceId('Microsoft.EventGrid/namespaces/topicSpaces', parameters('eventGridNamesapceName'), parameters('eventGridNamesapceTopicSpaceName'))]"
+                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamespaceName'))]",
+                "[resourceId('Microsoft.EventGrid/namespaces/topicSpaces', parameters('eventGridNamespaceName'), parameters('eventGridNamespaceTopicSpaceName'))]"
               ]
             },
             {
               "type": "Microsoft.EventGrid/namespaces/permissionBindings",
               "apiVersion": "2024-06-01-preview",
-              "name": "[format('{0}/{1}', parameters('eventGridNamesapceName'), 'samplesSub')]",
+              "name": "[format('{0}/{1}', parameters('eventGridNamespaceName'), 'samplesSub')]",
               "properties": {
                 "clientGroupName": "$all",
                 "description": "A subscriber permission binding for the namespace",
                 "permission": "Subscriber",
-                "topicSpaceName": "[parameters('eventGridNamesapceTopicSpaceName')]"
+                "topicSpaceName": "[parameters('eventGridNamespaceTopicSpaceName')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamesapceName'))]",
-                "[resourceId('Microsoft.EventGrid/namespaces/topicSpaces', parameters('eventGridNamesapceName'), parameters('eventGridNamesapceTopicSpaceName'))]"
+                "[resourceId('Microsoft.EventGrid/namespaces', parameters('eventGridNamespaceName'))]",
+                "[resourceId('Microsoft.EventGrid/namespaces/topicSpaces', parameters('eventGridNamespaceName'), parameters('eventGridNamespaceTopicSpaceName'))]"
               ]
             }
           ]
