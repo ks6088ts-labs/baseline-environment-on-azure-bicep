@@ -1,21 +1,27 @@
-name: infra
+name: deploy
 
 on:
-  push:
-    paths:
-      - infra/**
-    branches:
-      - main
-  schedule:
-    - cron: "00 00 * * 3"
   workflow_dispatch:
+    inputs:
+      scenario:
+        type: string
+        required: true
+        description: 'Scenario to deploy'
+      command:
+        type: choice
+        required: true
+        description: 'Command to run'
+        default: 'deploy'
+        options:
+          - deploy
+          - destroy
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  infra:
+  deploy:
     strategy:
       matrix:
         platform: [ubuntu-latest]
@@ -32,10 +38,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: run CI tests
+      - name: deploy scenario
         uses: azure/CLI@v1
         with:
           azcliversion: 2.51.0
           inlineScript: |
             cd infra
-            make ci-test
+            make ${{ github.event.inputs.command }} SCENARIO=${{ github.event.inputs.scenario }}
