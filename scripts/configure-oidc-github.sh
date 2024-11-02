@@ -52,6 +52,6 @@ then
 fi
 
 # Register secrets on GitHub
-gh secret set AZURE_CLIENT_ID --body $appId
-gh secret set AZURE_SUBSCRIPTION_ID --body $subscriptionId
-gh secret set AZURE_TENANT_ID --body $tenantId
+gh secret set AZURE_CLIENT_ID --body $appId --env dev
+gh secret set AZURE_SUBSCRIPTION_ID --body $subscriptionId --env dev
+gh secret set AZURE_TENANT_ID --body $tenantId --env dev
