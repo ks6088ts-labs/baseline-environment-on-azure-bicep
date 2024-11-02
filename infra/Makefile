@@ -54,10 +54,12 @@ test: ## test codes
 
 .PHONY: ci-test
 ci-test: ## ci test
+	make create-resource-group RESOURCE_GROUP_NAME=$(TEST_RESOURCE_GROUP_NAME)
 	@for dir in $(shell find scenarios/* -type d) ; do \
 		echo "Test: $$dir" ; \
 		make _ci-test-base SCENARIO=$$(basename $$dir) RESOURCE_GROUP_NAME=$(TEST_RESOURCE_GROUP_NAME) || exit 1 ; \
 	done
+	make delete-resource-group RESOURCE_GROUP_NAME=$(TEST_RESOURCE_GROUP_NAME)
 
 .PHONY: _ci-test-base
 _ci-test-base: install-deps-dev lint build test deployment-what-if
