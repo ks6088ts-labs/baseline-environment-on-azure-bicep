@@ -26,15 +26,12 @@ assigneeObjectId=$(az ad sp create --id "$appId" --query id --output tsv)
 # Get the tenant ID of the Azure subscription
 tenantId=$(az ad sp show --id "$appId" --query appOwnerOrganizationId --output tsv)
 
-# Create a new resource group
-az group create --name "$appName" --location japaneast
-
 # Assign the 'Contributor' role to the service principal for the subscription
 az role assignment create --role contributor \
     --subscription "$subscriptionId" \
     --assignee-object-id "$assigneeObjectId" \
     --assignee-principal-type ServicePrincipal \
-    --scope /subscriptions/"$subscriptionId"/resourceGroups/"$appName"
+    --scope /subscriptions/"$subscriptionId"
 
 # Assign the 'Contributor' role to the service principal for the subscription
 az ad app federated-credential create \
