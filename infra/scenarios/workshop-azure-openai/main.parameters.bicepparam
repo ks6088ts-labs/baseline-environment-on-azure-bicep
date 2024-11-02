@@ -33,16 +33,16 @@ param openAiDeployments = [
       capacity: 10
     }
   }
-  {
-    model: {
-      name: 'gpt-4o-realtime-preview'
-      version: '2024-10-01'
-    }
-    sku: {
-      name: 'GlobalStandard'
-      capacity: 1
-    }
-  }
+  // {
+  //   model: {
+  //     name: 'gpt-4o-realtime-preview'
+  //     version: '2024-10-01'
+  //   }
+  //   sku: {
+  //     name: 'GlobalStandard'
+  //     capacity: 1
+  //   }
+  // }
   {
     model: {
       name: 'whisper'
