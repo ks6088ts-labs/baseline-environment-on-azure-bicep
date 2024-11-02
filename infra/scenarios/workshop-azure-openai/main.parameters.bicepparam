@@ -43,16 +43,16 @@ param openAiDeployments = [
   //     capacity: 1
   //   }
   // }
-  {
-    model: {
-      name: 'whisper'
-      version: '001'
-    }
-    sku: {
-      name: 'Standard'
-      capacity: 3
-    }
-  }
+  // {
+  //   model: {
+  //     name: 'whisper'
+  //     version: '001'
+  //   }
+  //   sku: {
+  //     name: 'Standard'
+  //     capacity: 3
+  //   }
+  // }
 ]
 
 param tags = {
