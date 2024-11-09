@@ -3,13 +3,13 @@
 set -eux
 
 # Use GitHub Actions to connect to Azure:
-# https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Clinux
+# https://learn.microsoft.com/azure/developer/github/connect-from-azure?tabs=azure-cli%2Clinux
 
 # get the directory of the script
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 
 # get the name of the current directory
-appName=test-$(basename "$(pwd)")
+appName=$(basename "$(pwd)")
 
 # Azure sign in
 az login
@@ -42,16 +42,3 @@ az ad app federated-credential create \
 echo "AZURE_CLIENT_ID: $appId"
 echo "AZURE_SUBSCRIPTION_ID: $subscriptionId"
 echo "AZURE_TENANT_ID: $tenantId"
-
-# Verify gh is installed
-if ! command -v gh >/dev/null 2>&1
-then
-    echo "GitHub CLI (gh) could not be found"
-    echo "Please install gh: https://cli.github.com/"
-    exit
-fi
-
-# Register secrets on GitHub
-gh secret set AZURE_CLIENT_ID --body $appId --env dev
-gh secret set AZURE_SUBSCRIPTION_ID --body $subscriptionId --env dev
-gh secret set AZURE_TENANT_ID --body $tenantId --env dev

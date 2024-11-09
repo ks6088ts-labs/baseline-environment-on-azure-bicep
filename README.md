@@ -38,11 +38,15 @@ test                           test codes
 
 ## Use GitHub Actions to connect to Azure
 
-1. create GitHub environment named `dev`. ref.[Managing environments for deployment](https://docs.github.com/ja/actions/administering-github-actions/managing-environments-for-deployment)
-1. install [GitHub CLI](https://cli.github.com/) and authenticate with your GitHub account.
-1. update parameters in [credential.json](./scripts/credential.json) to your Azure subscription.
-1. run the following command to configure both Azure resources and GitHub secrets.
+To configure the federated credential by following the steps below:
+
+1. Install [GitHub CLI](https://cli.github.com/) and authenticate with GitHub.
+1. Run the following commands to create a new service principal and configure OpenID Connect.
 
 ```shell
-sh ./scripts/configure-oidc-github.sh
+# Create a new service principal
+bash scripts/create-service-principal.sh
+
+# Configure GitHub secrets
+bash scripts/configure-github-secrets.sh
 ```
