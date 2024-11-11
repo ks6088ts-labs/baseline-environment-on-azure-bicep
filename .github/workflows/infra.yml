@@ -20,7 +20,7 @@ jobs:
       matrix:
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
-    environment: dev
+    environment: ci
     steps:
       - name: Log into Azure
         uses: azure/login@v2

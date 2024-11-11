@@ -6,15 +6,13 @@ on:
       scenario:
         type: string
         required: true
-        description: 'Scenario to deploy'
-      command:
-        type: choice
+        description: "Scenario to deploy"
+        default: "tfstate_backend"
+      environment:
+        type: environment
         required: true
-        description: 'Command to run'
-        default: 'deploy'
-        options:
-          - deploy
-          - destroy
+        description: "Environment to deploy"
+        default: "ci"
 
 permissions:
   id-token: write
@@ -26,7 +24,7 @@ jobs:
       matrix:
         platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
-    environment: dev
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Log into Azure
         uses: azure/login@v2
@@ -44,4 +42,4 @@ jobs:
           azcliversion: 2.51.0
           inlineScript: |
             cd infra
-            make ${{ github.event.inputs.command }} SCENARIO=${{ github.event.inputs.scenario }}
+            make deploy SCENARIO=${{ github.event.inputs.scenario }}

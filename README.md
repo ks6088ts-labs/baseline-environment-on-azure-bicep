@@ -49,4 +49,7 @@ bash scripts/create-service-principal.sh
 
 # Configure GitHub secrets
 bash scripts/configure-github-secrets.sh
+
+# Add permissions to the service principal
+bash scripts/add-permissions-to-service-principal.sh
 ```
