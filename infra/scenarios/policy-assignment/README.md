@@ -15,3 +15,9 @@ make deploy SCENARIO=policy-assignment
 cd infra
 make destroy SCENARIO=policy-assignment
 ```
+
+## References
+
+- [Azure Policy built-in policy definitions](https://learn.microsoft.com/ja-jp/azure/governance/policy/samples/built-in-policies)
+- [Azure Policy Samples](https://github.com/Azure/azure-policy)
+- [azurerm_subscription_policy_assignment](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subscription_policy_assignment)
