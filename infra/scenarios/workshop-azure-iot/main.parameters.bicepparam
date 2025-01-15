@@ -1,6 +1,6 @@
 using 'main.bicep'
 
-param location = 'japaneast'
+param location = 'westus'
 
 param openAiDeployments = [
   {

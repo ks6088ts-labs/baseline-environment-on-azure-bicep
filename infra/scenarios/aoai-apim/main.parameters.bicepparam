@@ -11,8 +11,8 @@ param openAiDeployments = [
     capacity: 30
   }
   {
-    name: 'gpt-35-turbo'
-    version: '0613'
+    name: 'gpt-4o'
+    version: '2024-11-20'
     capacity: 30
   }
 ]

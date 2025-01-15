@@ -19,31 +19,16 @@ param openAiDeployments = [
     }
   }
   {
-    name: 'gpt-35-turbo'
+    name: 'gpt-4o'
     sku: {
-      name: 'Standard'
+      name: 'GlobalStandard'
       capacity: 1
     }
     properties: {
       model: {
         format: 'OpenAI'
-        name: 'gpt-35-turbo'
-        version: '1106'
-      }
-      raiPolicyName: 'Microsoft.Default'
-    }
-  }
-  {
-    name: 'gpt-4'
-    sku: {
-      name: 'Standard'
-      capacity: 1
-    }
-    properties: {
-      model: {
-        format: 'OpenAI'
-        name: 'gpt-4'
-        version: 'vision-preview'
+        name: 'gpt-4o'
+        version: '2024-11-20'
       }
       raiPolicyName: 'Microsoft.Default'
     }
