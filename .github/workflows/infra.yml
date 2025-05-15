@@ -37,9 +37,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: run CI tests
-        uses: azure/CLI@v1
+        uses: azure/CLI@v2
         with:
-          azcliversion: 2.51.0
+          azcliversion: 2.71.0
           inlineScript: |
             cd infra
             make ci-test
