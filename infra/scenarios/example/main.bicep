@@ -308,6 +308,10 @@ module appServicePlan '../../modules/appServicePlan.bicep' = if (appServicePlanE
     name: appServicePlanName
     location: location
     tags: tags
+    sku: {
+      name: 'B1'
+      capacity: 1
+    }
   }
 }
 
