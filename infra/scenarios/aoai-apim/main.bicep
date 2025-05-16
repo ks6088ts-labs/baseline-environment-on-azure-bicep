@@ -2,14 +2,6 @@
 @description('Specifies the name prefix.')
 param prefix string = uniqueString(resourceGroup().id)
 
-@description('Specifies whether name resources are in CamelCase, UpperCamelCase, or KebabCase.')
-@allowed([
-  'CamelCase'
-  'UpperCamelCase'
-  'KebabCase'
-])
-param letterCaseType string = 'UpperCamelCase'
-
 @description('Specifies the primary location of Azure resources.')
 param location string = resourceGroup().location
 
@@ -17,7 +9,7 @@ param location string = resourceGroup().location
 param tags object = {}
 
 @description('Specifies the name of the API Management.')
-param apiManagementName string = letterCaseType == 'UpperCamelCase' ? 'apim${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Apim' : letterCaseType == 'CamelCase' ? 'apim${toLower(prefix)}Apim' : 'apim${toLower(prefix)}-apim'
+param apiManagementName string = 'apim${toLower(prefix)}Apim'
 
 @description('Specifies the location of the API Management.')
 param apiManagementLocation string
@@ -26,7 +18,7 @@ param apiManagementLocation string
 param apiManagementSku string
 
 @description('Specifies the name of the Azure OpenAI resource.')
-param openAiName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}OpenAi' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}OpenAi' : '${toLower(prefix)}-openai'
+param openAiName string = '${toLower(prefix)}OpenAi'
 
 @description('Specifies the resource model definition representing SKU.')
 param openAiSku object = {
