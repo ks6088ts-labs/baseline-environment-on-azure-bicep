@@ -48,4 +48,18 @@ az webapp deploy \
 
 ## References
 
+**Docs**
+
+- [Getting started with Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/getting-started?pivots=stack-python)
+- [Deploy a Node.js web app in Azure](https://learn.microsoft.com/en-us/azure/app-service/quickstart-nodejs?tabs=windows&pivots=development-environment-cli)
+- [Quickstart: Deploy a Python (Django, Flask, or FastAPI) web app to Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/quickstart-python?tabs=fastapi%2Cwindows%2Cazure-cli%2Cvscode-deploy%2Cdeploy-instructions-azportal%2Cterminal-bash%2Cdeploy-instructions-zip-azcli)
+- [az webapp deploy](https://learn.microsoft.com/cli/azure/webapp?view=azure-cli-latest#az-webapp-deploy)
+
+**Codes**
+
+- [Azure-Samples/msdocs-python-fastapi-webapp-quickstart](https://github.com/Azure-Samples/msdocs-python-fastapi-webapp-quickstart)
+- [Azure App Service にファイルをデプロイする](https://learn.microsoft.com/ja-jp/azure/app-service/deploy-zip?tabs=cli)
+
+**Tips**
+
 - [Azure App Service Logging: How to Monitor Your Web Apps in Real-Time](https://techcommunity.microsoft.com/blog/appsonazureblog/azure-app-service-logging-how-to-monitor-your-web-apps-in-real-time/3800390)
