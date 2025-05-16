@@ -2,14 +2,6 @@
 @description('Specifies the name prefix.')
 param prefix string = uniqueString(resourceGroup().id)
 
-@description('Specifies whether name resources are in CamelCase, UpperCamelCase, or KebabCase.')
-@allowed([
-  'CamelCase'
-  'UpperCamelCase'
-  'KebabCase'
-])
-param letterCaseType string = 'UpperCamelCase'
-
 @description('Specifies the primary location of Azure resources.')
 param location string = resourceGroup().location
 
@@ -17,7 +9,7 @@ param location string = resourceGroup().location
 param tags object = {}
 
 @description('Specifies the name of the Log Analytics Workspace.')
-param logAnalyticsWorkspaceName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Workspace' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Workspace' : '${toLower(prefix)}-workspace'
+param logAnalyticsWorkspaceName string = '${toLower(prefix)}Workspace'
 
 @description('Specify the pricing tier: PerGB2018 or legacy tiers (Free, Standalone, PerNode, Standard or Premium) which are not available to all customers.')
 @allowed([
@@ -38,7 +30,7 @@ param logAnalyticsRetentionInDays int = 60
 @description('Name of your Azure Container Registry')
 @minLength(5)
 @maxLength(50)
-param containerRegistryName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}Acr' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}Acr' : '${toLower(prefix)}-acr'
+param containerRegistryName string = '${toLower(prefix)}azurecr'
 
 @description('Enable admin user that have push / pull permission to the registry.')
 param containerRegistryAdminUserEnabled bool = false
@@ -54,7 +46,7 @@ param containerRegistrySku string = 'Standard'
 @description('Name of your Azure IoT Hub')
 @minLength(5)
 @maxLength(50)
-param iotHubName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}IotHub' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}IotHub' : '${toLower(prefix)}-iothub'
+param iotHubName string = '${toLower(prefix)}IotHub'
 
 @description('The SKU to use for the IoT Hub.')
 @allowed([
@@ -69,7 +61,7 @@ param iotHubName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(
 param iotHubSku string = 'S1'
 
 @description('Name of your Azure Virtual Network')
-param virtualNetworkName string = letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}VNet' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}VNet' : '${toLower(prefix)}-vnet'
+param virtualNetworkName string = '${toLower(prefix)}VNet'
 
 @description('Specifies whether creating the Azure Bastion Host resource or not.')
 param bastionHostEnabled bool = false
@@ -144,7 +136,7 @@ module virtualMachine '../../modules/virtualMachine.bicep' = {
     vmAdminPasswordOrKey: vmAdminPasswordOrKey
     vmAdminUsername: vmAdminUsername
     authenticationType: authenticationType
-    managedIdentityName: letterCaseType == 'UpperCamelCase' ? '${toUpper(first(prefix))}${toLower(substring(prefix, 1, length(prefix) - 1))}AzureMonitorAgentManagedIdentity' : letterCaseType == 'CamelCase' ? '${toLower(prefix)}AzureMonitorAgentManagedIdentity' : '${toLower(prefix)}-azure-monitor-agent-managed-identity'
+    managedIdentityName: '${toLower(prefix)}AzureMonitorAgentManagedIdentity'
     location: location
     tags: tags
   }
