@@ -3,6 +3,86 @@
 
 # baseline-environment-on-azure-bicep
 
+[English](#overview) | [日本語](#概要)
+
+## 日本語ドキュメント
+
+### 概要
+
+このリポジトリは、Azure上にベースライン環境をデプロイするためのBicepテンプレートを提供しています。Bicepを使用したInfrastructure as Code（IaC）により、様々なAzureリソースを体系的にプロビジョニングすることができます。
+
+このプロジェクトでは、IoT、OpenAIなど、一般的なAzureソリューションのための複数のデプロイメントシナリオを提供しています。このリポジトリを使用することで、最小限の労力でこれらのシナリオをAzureサブスクリプションにデプロイすることができます。
+
+### はじめに
+
+以下の手順に従って最初の環境をデプロイしましょう：
+
+1. **リポジトリをクローン**
+   ```shell
+   git clone https://github.com/ks6088ts-labs/baseline-environment-on-azure-bicep.git
+   cd baseline-environment-on-azure-bicep
+   ```
+
+2. **Azureにログイン**
+   ```shell
+   az login
+   ```
+
+3. **サブスクリプションを選択**（複数ある場合）
+   ```shell
+   az account set --subscription "<サブスクリプションIDまたは名前>"
+   ```
+
+4. **デプロイするシナリオを選択**（以下のシナリオセクションを参照）
+   ```shell
+   # 例えば、exampleシナリオをデプロイする場合：
+   cd infra
+   make deploy SCENARIO=example
+   ```
+
+5. **デプロイメントを確認**
+   ```shell
+   az group list -o table
+   ```
+
+### 主なコマンド
+
+- **Azureの環境情報を表示**
+  ```shell
+  make info
+  ```
+
+- **特定のシナリオをデプロイ**
+  ```shell
+  make deploy SCENARIO=<シナリオ名>
+  ```
+
+- **デプロイ前に変更をプレビュー（What-If）**
+  ```shell
+  make deployment-what-if SCENARIO=<シナリオ名>
+  ```
+
+- **シナリオのリソースを削除**
+  ```shell
+  make destroy SCENARIO=<シナリオ名>
+  ```
+
+### トラブルシューティング
+
+1. **Azure CLIがログインしていない**
+   - エラー: `ERROR: Please run 'az login' to setup account.`
+   - 解決策: `az login`を実行してAzureに認証する
+
+2. **権限が不足している**
+   - エラー: `ERROR: The client has permission to perform action on resource '...' but the resource was not found.`
+   - 解決策: アカウントに必要な権限（所有者または共同作成者）があることを確認する
+
+3. **リソース名がすでに存在する**
+   - エラー: `Resource with name '...' already exists.`
+   - 解決策: 別のリソースグループ名を使用するか、既存のリソースを削除する
+
+---
+
 ## Overview
 
 This repository contains Bicep templates for deploying baseline environments on Azure. It provides a structured approach to provision various Azure resources using Infrastructure as Code (IaC) with Bicep.
