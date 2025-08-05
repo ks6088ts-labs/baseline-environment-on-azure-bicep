@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "13022333484217745945"
+      "templateHash": "14780466653408700381"
     }
   },
   "parameters": {
@@ -50,7 +50,7 @@
         {
           "name": "gpt-4o",
           "sku": {
-            "capacity": 1,
+            "capacity": 450,
             "name": "GlobalStandard"
           },
           "model_name": "gpt-4o"
@@ -58,7 +58,7 @@
         {
           "name": "text-embedding-3-small",
           "sku": {
-            "capacity": 1,
+            "capacity": 350,
             "name": "GlobalStandard"
           },
           "model_name": "text-embedding-3-small"

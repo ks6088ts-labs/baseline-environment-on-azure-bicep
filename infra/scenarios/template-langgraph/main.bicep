@@ -20,7 +20,7 @@ param aiFoundryModelDeployments array = [
   {
     name: 'gpt-4o'
     sku: {
-      capacity: 1
+      capacity: 450
       name: 'GlobalStandard'
     }
     model_name: 'gpt-4o'
@@ -28,7 +28,7 @@ param aiFoundryModelDeployments array = [
   {
     name: 'text-embedding-3-small'
     sku: {
-      capacity: 1
+      capacity: 350
       name: 'GlobalStandard'
     }
     model_name: 'text-embedding-3-small'
