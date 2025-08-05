@@ -1,5 +1,7 @@
 # template-langgraph Scenario
 
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fks6088ts-labs%2Fbaseline-environment-on-azure-bicep%2Frefs%2Fheads%2Fmain%2Finfra%2Fscenarios%2Ftemplate-langgraph%2Fazuredeploy.json)
+
 This is a scenario for [template-langgraph](https://github.com/ks6088ts-labs/template-langgraph), which is a sample application demonstrating the power of Azure and LangGraph for building AI applications.
 
 ## Deploy resources on Azure
