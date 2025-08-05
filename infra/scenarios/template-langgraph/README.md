@@ -32,3 +32,4 @@ az bicep build \
 
 - [Quickstart: Create an Azure AI Foundry resource using a Bicep file](https://learn.microsoft.com/azure/ai-foundry/how-to/create-resource-template?tabs=cli)
 - [Azure AI Foundry Documentation Samples](https://github.com/azure-ai-foundry/foundry-samples)
+- [Manage Azure Cosmos DB for NoSQL resources with Bicep](https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/manage-with-bicep)

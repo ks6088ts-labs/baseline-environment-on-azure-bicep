@@ -35,6 +35,16 @@ param aiFoundryModelDeployments array = [
   }
 ]
 
+// Azure Cosmos DB parameters
+@description('Specifies the name of the Cosmos DB account.')
+param cosmosDbAccountName string = 'cosmosdb-${resourceToken}'
+
+@description('Specifies the name of the Cosmos DB database.')
+param cosmosDbDatabaseName string = 'template_langgraph'
+
+@description('Specifies the name of the Cosmos DB container.')
+param cosmosDbContainerName string = 'kabuto'
+
 // Azure AI Foundry resources
 resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
   name: aiFoundryName
@@ -84,3 +94,72 @@ resource aiFoundryDeployments 'Microsoft.CognitiveServices/accounts/deployments@
     }
   }
 ]
+
+// Azure Cosmos DB resources
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2025-05-01-preview' = {
+  name: cosmosDbAccountName
+  location: location
+  tags: tags
+  kind: 'GlobalDocumentDB'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
+    }
+    databaseAccountOfferType: 'Standard'
+    locations: [
+      {
+        locationName: location
+      }
+    ]
+    publicNetworkAccess: 'Enabled'
+  }
+}
+
+resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2025-05-01-preview' = {
+  parent: cosmosDbAccount
+  name: cosmosDbDatabaseName
+  location: location
+  tags: tags
+  properties: {
+    resource: {
+      id: cosmosDbDatabaseName
+    }
+    options: {
+      throughput: 400
+    }
+  }
+}
+
+resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2025-05-01-preview' = {
+  parent: cosmosDbDatabase
+  name: cosmosDbContainerName
+  location: location
+  tags: tags
+  properties: {
+    resource: {
+      id: cosmosDbContainerName
+      partitionKey: {
+        paths: [
+          '/id'
+        ]
+        kind: 'Hash'
+      }
+    }
+  }
+}
+
+// Outputs
+output aiFoundryAccountId string = aiFoundry.id
+output aiFoundryAccountName string = aiFoundry.name
+output aiFoundryEndpoint string = aiFoundry.properties.endpoints['OpenAI Language Model Instance API']
+
+output cosmosDbAccountId string = cosmosDbAccount.id
+output cosmosDbAccountName string = cosmosDbAccount.name
+output cosmosDbEndpoint string = cosmosDbAccount.properties.documentEndpoint
+output cosmosDbDatabaseId string = cosmosDbDatabase.id
+output cosmosDbDatabaseName string = cosmosDbDatabase.name
+output cosmosDbContainerId string = cosmosDbContainer.id
+output cosmosDbContainerName string = cosmosDbContainer.name
