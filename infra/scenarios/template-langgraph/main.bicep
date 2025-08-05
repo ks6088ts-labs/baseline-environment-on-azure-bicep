@@ -45,6 +45,16 @@ param cosmosDbDatabaseName string = 'template_langgraph'
 @description('Specifies the name of the Cosmos DB container.')
 param cosmosDbContainerName string = 'kabuto'
 
+// Azure App Service parameters
+@description('Specifies the name of the Azure App Service plan.')
+param appServicePlanName string = 'appServicePlan-${resourceToken}'
+
+@description('Specifies the name of the Azure App Service.')
+param appServiceName string = 'appService-${resourceToken}'
+
+@description('Specifies the Docker image for the Azure App Service.')
+param appServiceDockerImage string = 'ks6088ts/template-langgraph:latest'
+
 // Azure AI Foundry resources
 resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
   name: aiFoundryName
@@ -151,6 +161,58 @@ resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
   }
 }
 
+// Azure App Service resources
+resource appServicePlan 'Microsoft.Web/serverfarms@2024-11-01' = {
+  name: appServicePlanName
+  location: location
+  tags: tags
+  sku: {
+    name: 'B1'
+  }
+  kind: 'linux'
+  properties: {
+    reserved: true
+  }
+}
+
+resource appService 'Microsoft.Web/sites@2024-11-01' = {
+  name: appServiceName
+  location: location
+  tags: tags
+  identity: {
+    type: 'SystemAssigned'
+  }
+  kind: 'app,linux,container'
+  properties: {
+    serverFarmId: appServicePlan.id
+    siteConfig: {
+      linuxFxVersion: 'DOCKER|${appServiceDockerImage}'
+      appSettings: [
+        {
+          name: 'COSMOSDB_HOST'
+          value: cosmosDbAccount.properties.documentEndpoint
+        }
+        {
+          name: 'COSMOSDB_KEY'
+          value: cosmosDbAccount.listKeys().primaryMasterKey
+        }
+        {
+          name: 'AZURE_OPENAI_ENDPOINT'
+          value: aiFoundry.properties.endpoints['OpenAI Language Model Instance API']
+        }
+        {
+          name: 'AZURE_OPENAI_API_KEY'
+          value: aiFoundry.listKeys().key1
+        }
+        {
+          name: 'WEBSITES_PORT'
+          value: '8000'
+        }
+      ]
+    }
+  }
+}
+
 // Outputs
 output aiFoundryAccountId string = aiFoundry.id
 output aiFoundryAccountName string = aiFoundry.name
@@ -163,3 +225,9 @@ output cosmosDbDatabaseId string = cosmosDbDatabase.id
 output cosmosDbDatabaseName string = cosmosDbDatabase.name
 output cosmosDbContainerId string = cosmosDbContainer.id
 output cosmosDbContainerName string = cosmosDbContainer.name
+
+output appServicePlanId string = appServicePlan.id
+output appServicePlanName string = appServicePlan.name
+output appServiceId string = appService.id
+output appServiceName string = appService.name
+output appServiceUrl string = 'https://${appService.name}.azurewebsites.net'
