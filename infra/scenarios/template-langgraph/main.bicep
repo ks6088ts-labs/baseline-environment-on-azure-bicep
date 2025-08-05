@@ -1,6 +1,6 @@
-// Parameters
+// Common parameters
 @description('Specifies the primary location of Azure resources.')
-param location string
+param location string = 'japaneast'
 
 @description('Specifies the name prefix.')
 param resourceToken string = uniqueString(resourceGroup().id, location)
@@ -8,12 +8,44 @@ param resourceToken string = uniqueString(resourceGroup().id, location)
 @description('Specifies the resource tags.')
 param tags object = {}
 
+// Azure AI Foundry parameters
 @description('Specifies the name of the Azure AI Foundry resource.')
 param aiFoundryName string = 'aiFoundry-${resourceToken}'
 
 @description('Specifies the name of the Azure AI Foundry project.')
 param aiFoundryProjectName string = 'aiFoundryProject-${resourceToken}'
 
+@description('Specifies the name of the model deployment.')
+param aiFoundryModelDeployments array = [
+  {
+    name: 'gpt-4o'
+    sku: {
+      capacity: 1
+      name: 'GlobalStandard'
+    }
+    model_name: 'gpt-4o'
+  }
+  {
+    name: 'text-embedding-3-small'
+    sku: {
+      capacity: 1
+      name: 'GlobalStandard'
+    }
+    model_name: 'text-embedding-3-small'
+  }
+]
+
+// Azure Cosmos DB parameters
+@description('Specifies the name of the Cosmos DB account.')
+param cosmosDbAccountName string = 'cosmosdb-${resourceToken}'
+
+@description('Specifies the name of the Cosmos DB database.')
+param cosmosDbDatabaseName string = 'template_langgraph'
+
+@description('Specifies the name of the Cosmos DB container.')
+param cosmosDbContainerName string = 'kabuto'
+
+// Azure AI Foundry resources
 resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
   name: aiFoundryName
   location: location
@@ -26,9 +58,13 @@ resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
   }
   kind: 'AIServices'
   properties: {
+    publicNetworkAccess: 'Enabled'
+    networkAcls: {
+      defaultAction: 'Allow'
+    }
+    disableLocalAuth: false
     allowProjectManagement: true
     customSubDomainName: aiFoundryName
-    disableLocalAuth: false
   }
 }
 
@@ -43,18 +79,87 @@ resource aiFoundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-06
   properties: {}
 }
 
-resource modelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2025-06-01' = {
-  parent: aiFoundry
-  name: 'gpt-4o'
+@batchSize(1)
+resource aiFoundryDeployments 'Microsoft.CognitiveServices/accounts/deployments@2025-06-01' = [
+  for aiFoundryModelDeployment in aiFoundryModelDeployments: {
+    parent: aiFoundry
+    name: aiFoundryModelDeployment.name
+    tags: tags
+    sku: aiFoundryModelDeployment.sku
+    properties: {
+      model: {
+        name: aiFoundryModelDeployment.model_name
+        format: 'OpenAI'
+      }
+    }
+  }
+]
+
+// Azure Cosmos DB resources
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2025-05-01-preview' = {
+  name: cosmosDbAccountName
+  location: location
   tags: tags
-  sku: {
-    capacity: 1
-    name: 'GlobalStandard'
+  kind: 'GlobalDocumentDB'
+  identity: {
+    type: 'SystemAssigned'
   }
   properties: {
-    model: {
-      name: 'gpt-4o'
-      format: 'OpenAI'
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
+    }
+    databaseAccountOfferType: 'Standard'
+    locations: [
+      {
+        locationName: location
+      }
+    ]
+    publicNetworkAccess: 'Enabled'
+  }
+}
+
+resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2025-05-01-preview' = {
+  parent: cosmosDbAccount
+  name: cosmosDbDatabaseName
+  location: location
+  tags: tags
+  properties: {
+    resource: {
+      id: cosmosDbDatabaseName
+    }
+    options: {
+      throughput: 400
     }
   }
 }
+
+resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2025-05-01-preview' = {
+  parent: cosmosDbDatabase
+  name: cosmosDbContainerName
+  location: location
+  tags: tags
+  properties: {
+    resource: {
+      id: cosmosDbContainerName
+      partitionKey: {
+        paths: [
+          '/id'
+        ]
+        kind: 'Hash'
+      }
+    }
+  }
+}
+
+// Outputs
+output aiFoundryAccountId string = aiFoundry.id
+output aiFoundryAccountName string = aiFoundry.name
+output aiFoundryEndpoint string = aiFoundry.properties.endpoints['OpenAI Language Model Instance API']
+
+output cosmosDbAccountId string = cosmosDbAccount.id
+output cosmosDbAccountName string = cosmosDbAccount.name
+output cosmosDbEndpoint string = cosmosDbAccount.properties.documentEndpoint
+output cosmosDbDatabaseId string = cosmosDbDatabase.id
+output cosmosDbDatabaseName string = cosmosDbDatabase.name
+output cosmosDbContainerId string = cosmosDbContainer.id
+output cosmosDbContainerName string = cosmosDbContainer.name
