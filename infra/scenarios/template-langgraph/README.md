@@ -9,6 +9,11 @@ This is a scenario for [template-langgraph](https://github.com/ks6088ts-labs/tem
 ```shell
 cd infra
 make deploy SCENARIO=template-langgraph
+
+# FIXME: From azure portal, set container image to ks6088ts/template-langgraph:latest on DockerHub manually.
+# - set image to ks6088ts/template-langgraph:latest on DockerHub
+# - set startup command to `fastapi run --host 0.0.0.0 --port 8000 template_langgraph/services/fastapis/main.py`
+# - restart the app service
 ```
 
 ## Destroy resources on Azure

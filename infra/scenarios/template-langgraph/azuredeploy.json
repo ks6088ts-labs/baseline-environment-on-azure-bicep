@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "14780466653408700381"
+      "templateHash": "3845678047837296251"
     }
   },
   "parameters": {
@@ -87,6 +87,27 @@
       "defaultValue": "kabuto",
       "metadata": {
         "description": "Specifies the name of the Cosmos DB container."
+      }
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "defaultValue": "[format('appServicePlan-{0}', parameters('resourceToken'))]",
+      "metadata": {
+        "description": "Specifies the name of the Azure App Service plan."
+      }
+    },
+    "appServiceName": {
+      "type": "string",
+      "defaultValue": "[format('appService-{0}', parameters('resourceToken'))]",
+      "metadata": {
+        "description": "Specifies the name of the Azure App Service."
+      }
+    },
+    "appServiceDockerImage": {
+      "type": "string",
+      "defaultValue": "ks6088ts/template-langgraph:latest",
+      "metadata": {
+        "description": "Specifies the Docker image for the Azure App Service."
       }
     }
   },
@@ -211,6 +232,64 @@
       "dependsOn": [
         "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'))]"
       ]
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2024-11-01",
+      "name": "[parameters('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "B1"
+      },
+      "kind": "linux",
+      "properties": {
+        "reserved": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2024-11-01",
+      "name": "[parameters('appServiceName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "kind": "app,linux,container",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "siteConfig": {
+          "linuxFxVersion": "[format('DOCKER|{0}', parameters('appServiceDockerImage'))]",
+          "appSettings": [
+            {
+              "name": "COSMOSDB_HOST",
+              "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName')), '2025-05-01-preview').documentEndpoint]"
+            },
+            {
+              "name": "COSMOSDB_KEY",
+              "value": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName')), '2025-05-01-preview').primaryMasterKey]"
+            },
+            {
+              "name": "AZURE_OPENAI_ENDPOINT",
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName')), '2025-06-01').endpoints['OpenAI Language Model Instance API']]"
+            },
+            {
+              "name": "AZURE_OPENAI_API_KEY",
+              "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName')), '2025-06-01').key1]"
+            },
+            {
+              "name": "WEBSITES_PORT",
+              "value": "8000"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName'))]"
+      ]
     }
   ],
   "outputs": {
@@ -253,6 +332,26 @@
     "cosmosDbContainerName": {
       "type": "string",
       "value": "[parameters('cosmosDbContainerName')]"
+    },
+    "appServicePlanId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "value": "[parameters('appServicePlanName')]"
+    },
+    "appServiceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/sites', parameters('appServiceName'))]"
+    },
+    "appServiceName": {
+      "type": "string",
+      "value": "[parameters('appServiceName')]"
+    },
+    "appServiceUrl": {
+      "type": "string",
+      "value": "[format('https://{0}.azurewebsites.net', parameters('appServiceName'))]"
     }
   }
 }
