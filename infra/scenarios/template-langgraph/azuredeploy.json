@@ -1,0 +1,101 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.36.177.2456",
+      "templateHash": "9096950735140066976"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the primary location of Azure resources."
+      }
+    },
+    "resourceToken": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id, parameters('location'))]",
+      "metadata": {
+        "description": "Specifies the name prefix."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Specifies the resource tags."
+      }
+    },
+    "aiFoundryName": {
+      "type": "string",
+      "defaultValue": "[format('aiFoundry-{0}', parameters('resourceToken'))]",
+      "metadata": {
+        "description": "Specifies the name of the Azure AI Foundry resource."
+      }
+    },
+    "aiFoundryProjectName": {
+      "type": "string",
+      "defaultValue": "[format('aiFoundryProject-{0}', parameters('resourceToken'))]",
+      "metadata": {
+        "description": "Specifies the name of the Azure AI Foundry project."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2025-06-01",
+      "name": "[parameters('aiFoundryName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "sku": {
+        "name": "S0"
+      },
+      "kind": "AIServices",
+      "properties": {
+        "allowProjectManagement": true,
+        "customSubDomainName": "[parameters('aiFoundryName')]",
+        "disableLocalAuth": false
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/projects",
+      "apiVersion": "2025-06-01",
+      "name": "[format('{0}/{1}', parameters('aiFoundryName'), parameters('aiFoundryProjectName'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2025-06-01",
+      "name": "[format('{0}/{1}', parameters('aiFoundryName'), 'gpt-4o')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "capacity": 1,
+        "name": "GlobalStandard"
+      },
+      "properties": {
+        "model": {
+          "name": "gpt-4o",
+          "format": "OpenAI"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName'))]"
+      ]
+    }
+  ]
+}
