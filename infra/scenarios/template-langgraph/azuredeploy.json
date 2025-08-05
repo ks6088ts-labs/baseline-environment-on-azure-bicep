@@ -4,13 +4,14 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.36.177.2456",
-      "templateHash": "9096950735140066976"
+      "version": "0.37.4.10188",
+      "templateHash": "13022333484217745945"
     }
   },
   "parameters": {
     "location": {
       "type": "string",
+      "defaultValue": "japaneast",
       "metadata": {
         "description": "Specifies the primary location of Azure resources."
       }
@@ -42,6 +43,51 @@
       "metadata": {
         "description": "Specifies the name of the Azure AI Foundry project."
       }
+    },
+    "aiFoundryModelDeployments": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "name": "gpt-4o",
+          "sku": {
+            "capacity": 1,
+            "name": "GlobalStandard"
+          },
+          "model_name": "gpt-4o"
+        },
+        {
+          "name": "text-embedding-3-small",
+          "sku": {
+            "capacity": 1,
+            "name": "GlobalStandard"
+          },
+          "model_name": "text-embedding-3-small"
+        }
+      ],
+      "metadata": {
+        "description": "Specifies the name of the model deployment."
+      }
+    },
+    "cosmosDbAccountName": {
+      "type": "string",
+      "defaultValue": "[format('cosmosdb-{0}', parameters('resourceToken'))]",
+      "metadata": {
+        "description": "Specifies the name of the Cosmos DB account."
+      }
+    },
+    "cosmosDbDatabaseName": {
+      "type": "string",
+      "defaultValue": "template_langgraph",
+      "metadata": {
+        "description": "Specifies the name of the Cosmos DB database."
+      }
+    },
+    "cosmosDbContainerName": {
+      "type": "string",
+      "defaultValue": "kabuto",
+      "metadata": {
+        "description": "Specifies the name of the Cosmos DB container."
+      }
     }
   },
   "resources": [
@@ -59,9 +105,13 @@
       },
       "kind": "AIServices",
       "properties": {
+        "publicNetworkAccess": "Enabled",
+        "networkAcls": {
+          "defaultAction": "Allow"
+        },
+        "disableLocalAuth": false,
         "allowProjectManagement": true,
-        "customSubDomainName": "[parameters('aiFoundryName')]",
-        "disableLocalAuth": false
+        "customSubDomainName": "[parameters('aiFoundryName')]"
       }
     },
     {
@@ -79,23 +129,130 @@
       ]
     },
     {
+      "copy": {
+        "name": "aiFoundryDeployments",
+        "count": "[length(parameters('aiFoundryModelDeployments'))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
       "type": "Microsoft.CognitiveServices/accounts/deployments",
       "apiVersion": "2025-06-01",
-      "name": "[format('{0}/{1}', parameters('aiFoundryName'), 'gpt-4o')]",
+      "name": "[format('{0}/{1}', parameters('aiFoundryName'), parameters('aiFoundryModelDeployments')[copyIndex()].name)]",
       "tags": "[parameters('tags')]",
-      "sku": {
-        "capacity": 1,
-        "name": "GlobalStandard"
-      },
+      "sku": "[parameters('aiFoundryModelDeployments')[copyIndex()].sku]",
       "properties": {
         "model": {
-          "name": "gpt-4o",
+          "name": "[parameters('aiFoundryModelDeployments')[copyIndex()].model_name]",
           "format": "OpenAI"
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName'))]"
       ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2025-05-01-preview",
+      "name": "[parameters('cosmosDbAccountName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "kind": "GlobalDocumentDB",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session"
+        },
+        "databaseAccountOfferType": "Standard",
+        "locations": [
+          {
+            "locationName": "[parameters('location')]"
+          }
+        ],
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2025-05-01-preview",
+      "name": "[format('{0}/{1}', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "resource": {
+          "id": "[parameters('cosmosDbDatabaseName')]"
+        },
+        "options": {
+          "throughput": 400
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "apiVersion": "2025-05-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'), parameters('cosmosDbContainerName'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "resource": {
+          "id": "[parameters('cosmosDbContainerName')]",
+          "partitionKey": {
+            "paths": [
+              "/id"
+            ],
+            "kind": "Hash"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'))]"
+      ]
     }
-  ]
+  ],
+  "outputs": {
+    "aiFoundryAccountId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName'))]"
+    },
+    "aiFoundryAccountName": {
+      "type": "string",
+      "value": "[parameters('aiFoundryName')]"
+    },
+    "aiFoundryEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName')), '2025-06-01').endpoints['OpenAI Language Model Instance API']]"
+    },
+    "cosmosDbAccountId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName'))]"
+    },
+    "cosmosDbAccountName": {
+      "type": "string",
+      "value": "[parameters('cosmosDbAccountName')]"
+    },
+    "cosmosDbEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName')), '2025-05-01-preview').documentEndpoint]"
+    },
+    "cosmosDbDatabaseId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'))]"
+    },
+    "cosmosDbDatabaseName": {
+      "type": "string",
+      "value": "[parameters('cosmosDbDatabaseName')]"
+    },
+    "cosmosDbContainerId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'), parameters('cosmosDbContainerName'))]"
+    },
+    "cosmosDbContainerName": {
+      "type": "string",
+      "value": "[parameters('cosmosDbContainerName')]"
+    }
+  }
 }
