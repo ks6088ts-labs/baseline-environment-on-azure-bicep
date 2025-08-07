@@ -33,6 +33,14 @@ param aiFoundryModelDeployments array = [
     }
     model_name: 'text-embedding-3-small'
   }
+  {
+    name: 'o4-mini'
+    sku: {
+      capacity: 1000
+      name: 'GlobalStandard'
+    }
+    model_name: 'o4-mini'
+  }
 ]
 
 // Azure Cosmos DB parameters

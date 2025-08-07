@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "3845678047837296251"
+      "templateHash": "2859650926104773872"
     }
   },
   "parameters": {
@@ -62,6 +62,14 @@
             "name": "GlobalStandard"
           },
           "model_name": "text-embedding-3-small"
+        },
+        {
+          "name": "o4-mini",
+          "sku": {
+            "capacity": 1000,
+            "name": "GlobalStandard"
+          },
+          "model_name": "o4-mini"
         }
       ],
       "metadata": {
