@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "2859650926104773872"
+      "templateHash": "16568071640312965900"
     }
   },
   "parameters": {
@@ -199,7 +199,8 @@
             "locationName": "[parameters('location')]"
           }
         ],
-        "publicNetworkAccess": "Enabled"
+        "publicNetworkAccess": "Enabled",
+        "disableLocalAuth": false
       }
     },
     {

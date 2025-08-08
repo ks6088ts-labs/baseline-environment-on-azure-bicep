@@ -133,6 +133,7 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2025-05-01-previ
       }
     ]
     publicNetworkAccess: 'Enabled'
+    disableLocalAuth: false
   }
 }
 
