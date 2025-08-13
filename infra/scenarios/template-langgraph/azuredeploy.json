@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "16568071640312965900"
+      "templateHash": "8241246805406686167"
     }
   },
   "parameters": {
@@ -95,6 +95,20 @@
       "defaultValue": "kabuto",
       "metadata": {
         "description": "Specifies the name of the Cosmos DB container."
+      }
+    },
+    "aiSearchName": {
+      "type": "string",
+      "defaultValue": "[toLower(format('aiSearch{0}', parameters('resourceToken')))]",
+      "metadata": {
+        "description": "Specifies the name of the Azure AI Search resource."
+      }
+    },
+    "aiSearchSku": {
+      "type": "string",
+      "defaultValue": "standard",
+      "metadata": {
+        "description": "The pricing tier of the search service you want to create (for example, basic or standard)."
       }
     },
     "appServicePlanName": {
@@ -200,7 +214,12 @@
           }
         ],
         "publicNetworkAccess": "Enabled",
-        "disableLocalAuth": false
+        "disableLocalAuth": false,
+        "capabilities": [
+          {
+            "name": "EnableNoSQLVectorSearch"
+          }
+        ]
       }
     },
     {
@@ -241,6 +260,20 @@
       "dependsOn": [
         "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'))]"
       ]
+    },
+    {
+      "type": "Microsoft.Search/searchServices",
+      "apiVersion": "2025-05-01",
+      "name": "[parameters('aiSearchName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('aiSearchSku')]"
+      },
+      "properties": {
+        "replicaCount": 1,
+        "partitionCount": 1,
+        "hostingMode": "default"
+      }
     },
     {
       "type": "Microsoft.Web/serverfarms",
@@ -302,65 +335,42 @@
     }
   ],
   "outputs": {
-    "aiFoundryAccountId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName'))]"
+    "aiFoundry": {
+      "type": "object",
+      "value": {
+        "id": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName'))]",
+        "name": "[parameters('aiFoundryName')]",
+        "endpoint": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName')), '2025-06-01').endpoints['OpenAI Language Model Instance API']]"
+      }
     },
-    "aiFoundryAccountName": {
-      "type": "string",
-      "value": "[parameters('aiFoundryName')]"
+    "cosmosDb": {
+      "type": "object",
+      "value": {
+        "accountId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName'))]",
+        "accountName": "[parameters('cosmosDbAccountName')]",
+        "endpoint": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName')), '2025-05-01-preview').documentEndpoint]",
+        "databaseId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'))]",
+        "databaseName": "[parameters('cosmosDbDatabaseName')]",
+        "containerId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'), parameters('cosmosDbContainerName'))]",
+        "containerName": "[parameters('cosmosDbContainerName')]"
+      }
     },
-    "aiFoundryEndpoint": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName')), '2025-06-01').endpoints['OpenAI Language Model Instance API']]"
+    "aiSearch": {
+      "type": "object",
+      "value": {
+        "id": "[resourceId('Microsoft.Search/searchServices', parameters('aiSearchName'))]",
+        "name": "[parameters('aiSearchName')]"
+      }
     },
-    "cosmosDbAccountId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName'))]"
-    },
-    "cosmosDbAccountName": {
-      "type": "string",
-      "value": "[parameters('cosmosDbAccountName')]"
-    },
-    "cosmosDbEndpoint": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName')), '2025-05-01-preview').documentEndpoint]"
-    },
-    "cosmosDbDatabaseId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'))]"
-    },
-    "cosmosDbDatabaseName": {
-      "type": "string",
-      "value": "[parameters('cosmosDbDatabaseName')]"
-    },
-    "cosmosDbContainerId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'), parameters('cosmosDbContainerName'))]"
-    },
-    "cosmosDbContainerName": {
-      "type": "string",
-      "value": "[parameters('cosmosDbContainerName')]"
-    },
-    "appServicePlanId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
-    },
-    "appServicePlanName": {
-      "type": "string",
-      "value": "[parameters('appServicePlanName')]"
-    },
-    "appServiceId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.Web/sites', parameters('appServiceName'))]"
-    },
-    "appServiceName": {
-      "type": "string",
-      "value": "[parameters('appServiceName')]"
-    },
-    "appServiceUrl": {
-      "type": "string",
-      "value": "[format('https://{0}.azurewebsites.net', parameters('appServiceName'))]"
+    "appService": {
+      "type": "object",
+      "value": {
+        "id": "[resourceId('Microsoft.Web/sites', parameters('appServiceName'))]",
+        "name": "[parameters('appServiceName')]",
+        "url": "[format('https://{0}.azurewebsites.net', parameters('appServiceName'))]",
+        "planId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "planName": "[parameters('appServicePlanName')]"
+      }
     }
   }
 }

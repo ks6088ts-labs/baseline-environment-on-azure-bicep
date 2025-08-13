@@ -53,6 +53,13 @@ param cosmosDbDatabaseName string = 'template_langgraph'
 @description('Specifies the name of the Cosmos DB container.')
 param cosmosDbContainerName string = 'kabuto'
 
+// Azure AI Search parameters
+@description('Specifies the name of the Azure AI Search resource.')
+param aiSearchName string = toLower('aiSearch${resourceToken}')
+
+@description('The pricing tier of the search service you want to create (for example, basic or standard).')
+param aiSearchSku string = 'standard'
+
 // Azure App Service parameters
 @description('Specifies the name of the Azure App Service plan.')
 param appServicePlanName string = 'appServicePlan-${resourceToken}'
@@ -134,6 +141,9 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2025-05-01-previ
     ]
     publicNetworkAccess: 'Enabled'
     disableLocalAuth: false
+    capabilities: [
+      { name: 'EnableNoSQLVectorSearch' }
+    ]
   }
 }
 
@@ -167,6 +177,20 @@ resource cosmosDbContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/c
         kind: 'Hash'
       }
     }
+  }
+}
+
+// Azure AI Search resources
+resource aiSearch 'Microsoft.Search/searchServices@2025-05-01' = {
+  name: aiSearchName
+  location: location
+  sku: {
+    name: aiSearchSku
+  }
+  properties: {
+    replicaCount: 1
+    partitionCount: 1
+    hostingMode: 'default'
   }
 }
 
@@ -223,20 +247,31 @@ resource appService 'Microsoft.Web/sites@2024-11-01' = {
 }
 
 // Outputs
-output aiFoundryAccountId string = aiFoundry.id
-output aiFoundryAccountName string = aiFoundry.name
-output aiFoundryEndpoint string = aiFoundry.properties.endpoints['OpenAI Language Model Instance API']
+output aiFoundry object = {
+  id: aiFoundry.id
+  name: aiFoundry.name
+  endpoint: aiFoundry.properties.endpoints['OpenAI Language Model Instance API']
+}
 
-output cosmosDbAccountId string = cosmosDbAccount.id
-output cosmosDbAccountName string = cosmosDbAccount.name
-output cosmosDbEndpoint string = cosmosDbAccount.properties.documentEndpoint
-output cosmosDbDatabaseId string = cosmosDbDatabase.id
-output cosmosDbDatabaseName string = cosmosDbDatabase.name
-output cosmosDbContainerId string = cosmosDbContainer.id
-output cosmosDbContainerName string = cosmosDbContainer.name
+output cosmosDb object = {
+  accountId: cosmosDbAccount.id
+  accountName: cosmosDbAccount.name
+  endpoint: cosmosDbAccount.properties.documentEndpoint
+  databaseId: cosmosDbDatabase.id
+  databaseName: cosmosDbDatabase.name
+  containerId: cosmosDbContainer.id
+  containerName: cosmosDbContainer.name
+}
 
-output appServicePlanId string = appServicePlan.id
-output appServicePlanName string = appServicePlan.name
-output appServiceId string = appService.id
-output appServiceName string = appService.name
-output appServiceUrl string = 'https://${appService.name}.azurewebsites.net'
+output aiSearch object = {
+  id: aiSearch.id
+  name: aiSearch.name
+}
+
+output appService object = {
+  id: appService.id
+  name: appService.name
+  url: 'https://${appService.name}.azurewebsites.net'
+  planId: appServicePlan.id
+  planName: appServicePlan.name
+}
