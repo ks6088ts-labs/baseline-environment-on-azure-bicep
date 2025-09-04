@@ -12,6 +12,9 @@ param tags object = {}
 @description('Specifies the name of the Azure AI Foundry resource.')
 param aiFoundryName string = 'aiFoundry-${resourceToken}'
 
+@description('Specifies the location of the Azure AI Foundry resource.')
+param aiFoundryLocation string = 'eastus2'
+
 @description('Specifies the name of the Azure AI Foundry project.')
 param aiFoundryProjectName string = 'aiFoundryProject-${resourceToken}'
 
@@ -73,7 +76,7 @@ param appServiceDockerImage string = 'ks6088ts/template-langgraph:latest'
 // Azure AI Foundry resources
 resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
   name: aiFoundryName
-  location: location
+  location: aiFoundryLocation
   tags: tags
   identity: {
     type: 'SystemAssigned'
@@ -96,7 +99,7 @@ resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
 resource aiFoundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-06-01' = {
   parent: aiFoundry
   name: aiFoundryProjectName
-  location: location
+  location: aiFoundryLocation
   tags: tags
   identity: {
     type: 'SystemAssigned'
