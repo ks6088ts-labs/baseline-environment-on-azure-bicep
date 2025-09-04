@@ -90,7 +90,8 @@ _deploy-base:
 	az deployment group $(DEPLOYMENT_GROUP_SUBCOMMAND) \
 		--resource-group $(RESOURCE_GROUP_NAME) \
 		--template-file $(TEMPLATE_FILE) \
-		--parameters $(PARAMETERS_FILE)
+		--parameters $(PARAMETERS_FILE) \
+		--debug
 
 .PHONY: deploy
 deploy: create-resource-group deployment-what-if deployment-create ## deploy resources
