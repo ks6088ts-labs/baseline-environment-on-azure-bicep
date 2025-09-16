@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "8241246805406686167"
+      "templateHash": "18209347743427355983"
     }
   },
   "parameters": {
@@ -35,6 +35,13 @@
       "defaultValue": "[format('aiFoundry-{0}', parameters('resourceToken'))]",
       "metadata": {
         "description": "Specifies the name of the Azure AI Foundry resource."
+      }
+    },
+    "aiFoundryLocation": {
+      "type": "string",
+      "defaultValue": "eastus2",
+      "metadata": {
+        "description": "Specifies the location of the Azure AI Foundry resource."
       }
     },
     "aiFoundryProjectName": {
@@ -138,7 +145,7 @@
       "type": "Microsoft.CognitiveServices/accounts",
       "apiVersion": "2025-06-01",
       "name": "[parameters('aiFoundryName')]",
-      "location": "[parameters('location')]",
+      "location": "[parameters('aiFoundryLocation')]",
       "tags": "[parameters('tags')]",
       "identity": {
         "type": "SystemAssigned"
@@ -161,7 +168,7 @@
       "type": "Microsoft.CognitiveServices/accounts/projects",
       "apiVersion": "2025-06-01",
       "name": "[format('{0}/{1}', parameters('aiFoundryName'), parameters('aiFoundryProjectName'))]",
-      "location": "[parameters('location')]",
+      "location": "[parameters('aiFoundryLocation')]",
       "tags": "[parameters('tags')]",
       "identity": {
         "type": "SystemAssigned"
