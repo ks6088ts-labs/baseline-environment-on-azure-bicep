@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.37.4.10188",
-      "templateHash": "18209347743427355983"
+      "version": "0.38.5.1644",
+      "templateHash": "15139228620260336316"
     }
   },
   "parameters": {
@@ -18,7 +18,7 @@
     },
     "resourceToken": {
       "type": "string",
-      "defaultValue": "[uniqueString(resourceGroup().id, parameters('location'))]",
+      "defaultValue": "[uniqueString(resourceGroup().id, parameters('location'), parameters('aiFoundryLocation'))]",
       "metadata": {
         "description": "Specifies the name prefix."
       }
@@ -30,6 +30,13 @@
         "description": "Specifies the resource tags."
       }
     },
+    "aiFoundryEnabled": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Specifies whether to enable Azure AI Foundry resources."
+      }
+    },
     "aiFoundryName": {
       "type": "string",
       "defaultValue": "[format('aiFoundry-{0}', parameters('resourceToken'))]",
@@ -39,7 +46,7 @@
     },
     "aiFoundryLocation": {
       "type": "string",
-      "defaultValue": "eastus2",
+      "defaultValue": "japaneast",
       "metadata": {
         "description": "Specifies the location of the Azure AI Foundry resource."
       }
@@ -60,27 +67,22 @@
             "capacity": 450,
             "name": "GlobalStandard"
           },
-          "model_name": "gpt-4o"
-        },
-        {
-          "name": "text-embedding-3-small",
-          "sku": {
-            "capacity": 350,
-            "name": "GlobalStandard"
-          },
-          "model_name": "text-embedding-3-small"
-        },
-        {
-          "name": "o4-mini",
-          "sku": {
-            "capacity": 1000,
-            "name": "GlobalStandard"
-          },
-          "model_name": "o4-mini"
+          "model": {
+            "name": "gpt-4o",
+            "format": "OpenAI",
+            "version": "2024-08-06"
+          }
         }
       ],
       "metadata": {
         "description": "Specifies the name of the model deployment."
+      }
+    },
+    "cosmosDbEnabled": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Specifies whether to enable Azure Cosmos DB resources."
       }
     },
     "cosmosDbAccountName": {
@@ -104,6 +106,13 @@
         "description": "Specifies the name of the Cosmos DB container."
       }
     },
+    "aiSearchEnabled": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Specifies whether to enable Azure AI Search resources."
+      }
+    },
     "aiSearchName": {
       "type": "string",
       "defaultValue": "[toLower(format('aiSearch{0}', parameters('resourceToken')))]",
@@ -116,6 +125,13 @@
       "defaultValue": "standard",
       "metadata": {
         "description": "The pricing tier of the search service you want to create (for example, basic or standard)."
+      }
+    },
+    "appServiceEnabled": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Specifies whether to enable Azure App Service resources."
       }
     },
     "appServicePlanName": {
@@ -142,8 +158,9 @@
   },
   "resources": [
     {
+      "condition": "[parameters('aiFoundryEnabled')]",
       "type": "Microsoft.CognitiveServices/accounts",
-      "apiVersion": "2025-06-01",
+      "apiVersion": "2025-07-01-preview",
       "name": "[parameters('aiFoundryName')]",
       "location": "[parameters('aiFoundryLocation')]",
       "tags": "[parameters('tags')]",
@@ -165,8 +182,9 @@
       }
     },
     {
+      "condition": "[parameters('aiFoundryEnabled')]",
       "type": "Microsoft.CognitiveServices/accounts/projects",
-      "apiVersion": "2025-06-01",
+      "apiVersion": "2025-07-01-preview",
       "name": "[format('{0}/{1}', parameters('aiFoundryName'), parameters('aiFoundryProjectName'))]",
       "location": "[parameters('aiFoundryLocation')]",
       "tags": "[parameters('tags')]",
@@ -185,22 +203,21 @@
         "mode": "serial",
         "batchSize": 1
       },
+      "condition": "[parameters('aiFoundryEnabled')]",
       "type": "Microsoft.CognitiveServices/accounts/deployments",
-      "apiVersion": "2025-06-01",
+      "apiVersion": "2025-07-01-preview",
       "name": "[format('{0}/{1}', parameters('aiFoundryName'), parameters('aiFoundryModelDeployments')[copyIndex()].name)]",
       "tags": "[parameters('tags')]",
       "sku": "[parameters('aiFoundryModelDeployments')[copyIndex()].sku]",
       "properties": {
-        "model": {
-          "name": "[parameters('aiFoundryModelDeployments')[copyIndex()].model_name]",
-          "format": "OpenAI"
-        }
+        "model": "[parameters('aiFoundryModelDeployments')[copyIndex()].model]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName'))]"
       ]
     },
     {
+      "condition": "[parameters('cosmosDbEnabled')]",
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "apiVersion": "2025-05-01-preview",
       "name": "[parameters('cosmosDbAccountName')]",
@@ -230,6 +247,7 @@
       }
     },
     {
+      "condition": "[parameters('cosmosDbEnabled')]",
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
       "apiVersion": "2025-05-01-preview",
       "name": "[format('{0}/{1}', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'))]",
@@ -248,6 +266,7 @@
       ]
     },
     {
+      "condition": "[parameters('cosmosDbEnabled')]",
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
       "apiVersion": "2025-05-01-preview",
       "name": "[format('{0}/{1}/{2}', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'), parameters('cosmosDbContainerName'))]",
@@ -269,8 +288,9 @@
       ]
     },
     {
+      "condition": "[parameters('aiSearchEnabled')]",
       "type": "Microsoft.Search/searchServices",
-      "apiVersion": "2025-05-01",
+      "apiVersion": "2025-10-01-preview",
       "name": "[parameters('aiSearchName')]",
       "location": "[parameters('location')]",
       "sku": {
@@ -283,6 +303,7 @@
       }
     },
     {
+      "condition": "[parameters('appServiceEnabled')]",
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2024-11-01",
       "name": "[parameters('appServicePlanName')]",
@@ -297,6 +318,7 @@
       }
     },
     {
+      "condition": "[parameters('appServiceEnabled')]",
       "type": "Microsoft.Web/sites",
       "apiVersion": "2024-11-01",
       "name": "[parameters('appServiceName')]",
@@ -312,22 +334,6 @@
           "linuxFxVersion": "[format('DOCKER|{0}', parameters('appServiceDockerImage'))]",
           "appSettings": [
             {
-              "name": "COSMOSDB_HOST",
-              "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName')), '2025-05-01-preview').documentEndpoint]"
-            },
-            {
-              "name": "COSMOSDB_KEY",
-              "value": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName')), '2025-05-01-preview').primaryMasterKey]"
-            },
-            {
-              "name": "AZURE_OPENAI_ENDPOINT",
-              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName')), '2025-06-01').endpoints['OpenAI Language Model Instance API']]"
-            },
-            {
-              "name": "AZURE_OPENAI_API_KEY",
-              "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName')), '2025-06-01').key1]"
-            },
-            {
               "name": "WEBSITES_PORT",
               "value": "8000"
             }
@@ -335,48 +341,17 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName'))]",
-        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
-        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
       ]
     }
   ],
   "outputs": {
-    "aiFoundry": {
+    "resourceGroup": {
       "type": "object",
       "value": {
-        "id": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName'))]",
-        "name": "[parameters('aiFoundryName')]",
-        "endpoint": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('aiFoundryName')), '2025-06-01').endpoints['OpenAI Language Model Instance API']]"
-      }
-    },
-    "cosmosDb": {
-      "type": "object",
-      "value": {
-        "accountId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName'))]",
-        "accountName": "[parameters('cosmosDbAccountName')]",
-        "endpoint": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDbAccountName')), '2025-05-01-preview').documentEndpoint]",
-        "databaseId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'))]",
-        "databaseName": "[parameters('cosmosDbDatabaseName')]",
-        "containerId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', parameters('cosmosDbAccountName'), parameters('cosmosDbDatabaseName'), parameters('cosmosDbContainerName'))]",
-        "containerName": "[parameters('cosmosDbContainerName')]"
-      }
-    },
-    "aiSearch": {
-      "type": "object",
-      "value": {
-        "id": "[resourceId('Microsoft.Search/searchServices', parameters('aiSearchName'))]",
-        "name": "[parameters('aiSearchName')]"
-      }
-    },
-    "appService": {
-      "type": "object",
-      "value": {
-        "id": "[resourceId('Microsoft.Web/sites', parameters('appServiceName'))]",
-        "name": "[parameters('appServiceName')]",
-        "url": "[format('https://{0}.azurewebsites.net', parameters('appServiceName'))]",
-        "planId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
-        "planName": "[parameters('appServicePlanName')]"
+        "id": "[resourceGroup().id]",
+        "name": "[resourceGroup().name]",
+        "location": "[resourceGroup().location]"
       }
     }
   }
