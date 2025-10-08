@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.38.5.1644",
-      "templateHash": "15139228620260336316"
+      "version": "0.38.33.27573",
+      "templateHash": "12823155397806463794"
     }
   },
   "parameters": {
@@ -62,6 +62,18 @@
       "type": "array",
       "defaultValue": [
         {
+          "name": "gpt-5",
+          "sku": {
+            "capacity": 1000,
+            "name": "GlobalStandard"
+          },
+          "model": {
+            "name": "gpt-5",
+            "format": "OpenAI",
+            "version": "2025-08-07"
+          }
+        },
+        {
           "name": "gpt-4o",
           "sku": {
             "capacity": 450,
@@ -71,6 +83,30 @@
             "name": "gpt-4o",
             "format": "OpenAI",
             "version": "2024-08-06"
+          }
+        },
+        {
+          "name": "text-embedding-3-small",
+          "sku": {
+            "capacity": 1000,
+            "name": "GlobalStandard"
+          },
+          "model": {
+            "name": "text-embedding-3-small",
+            "format": "OpenAI",
+            "version": "1"
+          }
+        },
+        {
+          "name": "text-embedding-3-large",
+          "sku": {
+            "capacity": 1000,
+            "name": "GlobalStandard"
+          },
+          "model": {
+            "name": "text-embedding-3-large",
+            "format": "OpenAI",
+            "version": "1"
           }
         }
       ],

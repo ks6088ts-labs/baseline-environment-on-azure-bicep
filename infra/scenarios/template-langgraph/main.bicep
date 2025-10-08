@@ -24,6 +24,18 @@ param aiFoundryProjectName string = 'aiFoundryProject-${resourceToken}'
 @description('Specifies the name of the model deployment.')
 param aiFoundryModelDeployments array = [
   {
+    name: 'gpt-5'
+    sku: {
+      capacity: 1000
+      name: 'GlobalStandard'
+    }
+    model: {
+      name: 'gpt-5'
+      format: 'OpenAI'
+      version: '2025-08-07'
+    }
+  }
+  {
     name: 'gpt-4o'
     sku: {
       capacity: 450
@@ -33,6 +45,30 @@ param aiFoundryModelDeployments array = [
       name: 'gpt-4o'
       format: 'OpenAI'
       version: '2024-08-06'
+    }
+  }
+  {
+    name: 'text-embedding-3-small'
+    sku: {
+      capacity: 1000
+      name: 'GlobalStandard'
+    }
+    model: {
+      name: 'text-embedding-3-small'
+      format: 'OpenAI'
+      version: '1'
+    }
+  }
+  {
+    name: 'text-embedding-3-large'
+    sku: {
+      capacity: 1000
+      name: 'GlobalStandard'
+    }
+    model: {
+      name: 'text-embedding-3-large'
+      format: 'OpenAI'
+      version: '1'
     }
   }
   // add more model deployments here
